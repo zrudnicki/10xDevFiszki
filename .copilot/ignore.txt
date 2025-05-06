@@ -1,0 +1,12 @@
+# Files and directories Copilot should avoid (for documentation purposes only)
+.env
+.env.local
+.env.production
+secrets/
+private_keys/
+node_modules/
+dist/
+build/
+.cache/
+
+Let me know if you want to further customize any of these files for your specific workflow or team! 

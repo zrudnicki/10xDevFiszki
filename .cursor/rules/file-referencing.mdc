@@ -1,0 +1,9 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Referencing Files in Cursor Rules
+
+To reference a file in a rule, use the format: `[filename.ext](mdc:filename.ext)`, where the path is relative to the workspace root. For example, to reference a configuration file, write: [config.js](mdc:config.js).
+

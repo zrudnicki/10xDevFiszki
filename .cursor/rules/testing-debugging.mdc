@@ -1,0 +1,12 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Testing and Debugging
+
+- Place all test files in the `tests/` directory, mirroring the structure of `src/`.
+- Use a test runner such as Jest, Mocha, or Pytest, as specified in [package.json](mdc:package.json) or [requirements.txt](mdc:requirements.txt).
+- Run tests using the appropriate command, e.g., `npm test` or `pytest`.
+- Use breakpoints and the integrated debugger for step-by-step code execution.
+- Write tests for new features and bug fixes before merging code.

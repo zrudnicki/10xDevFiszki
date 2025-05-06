@@ -1,0 +1,12 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Version Control Guidelines
+
+- Use Git for version control. All changes should be committed with clear, descriptive messages.
+- Exclude build artifacts and sensitive files using [.gitignore](mdc:.gitignore).
+- Review diffs before committing, especially for AI-generated changes.
+- Use branches for new features or bug fixes, and merge via pull requests.
+- Document major changes in [CHANGELOG.md](mdc:CHANGELOG.md) if present.

@@ -1,0 +1,14 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Search and Refactor
+
+- Use semantic search to find code by meaning, not just by text.
+- Use "Find All References" to locate all usages of a function or variable.
+- Use refactor tools (rename, extract, etc.) to safely update codebase-wide.
+- After refactoring, run all tests in [tests/](mdc:tests) to ensure nothing is broken.
+- Document significant refactors in [CHANGELOG.md](mdc:CHANGELOG.md) if present.
+
+

@@ -1,0 +1,12 @@
+---
+description: Rule Editing Guidelines
+globs: 
+alwaysApply: false
+---
+# Editing Cursor Rules
+
+- Store rules in the `.cursor/rules` directory.
+- Use the `.mdc` extension for all rule files.
+- Only edit the content after the metadata section; never modify metadata.
+- Use Markdown format with Cursor-specific extensions for rules.
+

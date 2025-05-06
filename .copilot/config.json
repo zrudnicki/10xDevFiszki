@@ -1,0 +1,17 @@
+{
+  "//": "This is an example configuration file for GitHub Copilot.",
+  "enable": true,
+  "languages": {
+    "javascript": true,
+    "typescript": true,
+    "python": true,
+    "markdown": true
+  },
+  "suggestionDisplay": {
+    "showLineSuggestions": true,
+    "showBlockSuggestions": true
+  },
+  "telemetry": {
+    "enabled": false
+  }
+} 

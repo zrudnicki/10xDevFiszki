@@ -1,0 +1,11 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Workspace Generation
+
+- The workspace should be organized by feature or domain, with source code in the `src/` directory and tests in the `tests/` directory.
+- Use a [README.md](mdc:README.md) to document the project structure and setup instructions.
+- Exclude unnecessary files from version control using [.gitignore](mdc:.gitignore).
+- Configuration files such as [config.js](mdc:config.js) or [settings.py](mdc:settings.py) should be placed at the root or in a `config/` directory.

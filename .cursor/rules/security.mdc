@@ -1,0 +1,12 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Security Guidelines
+
+- Never commit sensitive credentials, secrets, or API keys to the repository.
+- Use environment variables for configuration secrets. Reference them in code, e.g., `process.env.SECRET_KEY` in [config.js](mdc:config.js).
+- Review all AI-generated code for potential security vulnerabilities before merging.
+- Regularly update dependencies to patch known vulnerabilities. Check [package.json](mdc:package.json) for dependencies.
+- Use tools like `npm audit` or `yarn audit` to scan for vulnerabilities.
