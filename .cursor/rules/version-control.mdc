@@ -1,6 +1,6 @@
 ---
-description:
-globs:
+description: Version control rules
+globs: 
 alwaysApply: false
 ---
 # Version Control Guidelines

@@ -1,6 +1,6 @@
 ---
-description:
-globs:
+description: Testing rule
+globs: 
 alwaysApply: false
 ---
 # Testing and Debugging
