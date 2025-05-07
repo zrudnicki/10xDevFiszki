@@ -1,0 +1,1 @@
+Based on the @prd.md  and the @tech-stack.md  prepare a prompt for a Bolt.new generator, that will allow to verify and implement the basic functionality of the application, which is flash cards generation using AI. Exclude all non-essential features. Make sure the generator plans the job and receives my acceptance, before generating the PoC.
