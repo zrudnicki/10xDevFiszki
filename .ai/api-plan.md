@@ -570,7 +570,7 @@ Authentication is handled by Supabase Auth. The following endpoints are provided
 - **Response**:
   ```json
   {
-    "flashcards": [
+    "data": [
       {
         "id": "uuid",
         "front": "string",
@@ -629,8 +629,8 @@ Authentication is handled by Supabase Auth. The following endpoints are provided
     ],
     "stats": {
       "total_accepted": "integer",
-      "direct_accepted": "integer",
-      "edited_accepted": "integer"
+      "total_accepted_direct": "integer",
+      "total_accepted_edited": "integer"
     }
   }
   ```

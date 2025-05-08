@@ -142,7 +142,7 @@ export interface GeneratedFlashcardDto {
 }
 
 export interface GenerateFlashcardsResponseDto {
-  flashcards: GeneratedFlashcardDto[];
+  data: GeneratedFlashcardDto[];
 }
 
 export interface AcceptFlashcardDto extends GeneratedFlashcardDto {
@@ -157,8 +157,8 @@ export interface AcceptFlashcardsResponseDto {
   data: FlashcardDto[];
   stats: {
     total_accepted: number;
-    direct_accepted: number;
-    edited_accepted: number;
+    total_accepted_direct: number;
+    total_accepted_edited: number;
   };
 }
 

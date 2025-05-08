@@ -1,4 +1,4 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
+import type { SupabaseClient } from "../../db/supabase.client";
 import type { FlashcardGenerationStatsDto } from "../../types";
 
 /**
@@ -24,7 +24,7 @@ export async function updateFlashcardGenerationStats(
 
     if (fetchError && fetchError.code !== "PGRST116") {
       // PGRST116 is "no rows returned" error
-      console.error("Error fetching flashcard generation stats:", fetchError);
+      console.error(`Error fetching flashcard generation stats for user ${userId}:`, fetchError);
       return; // Don't throw error as this is non-critical functionality
     }
 
@@ -39,7 +39,7 @@ export async function updateFlashcardGenerationStats(
         .eq("user_id", userId);
 
       if (updateError) {
-        console.error("Error updating flashcard generation stats:", updateError);
+        console.error(`Error updating flashcard generation stats for user ${userId}:`, updateError);
       }
     } else {
       // Create new record
@@ -52,11 +52,11 @@ export async function updateFlashcardGenerationStats(
       });
 
       if (insertError) {
-        console.error("Error creating flashcard generation stats:", insertError);
+        console.error(`Error creating flashcard generation stats for user ${userId}:`, insertError);
       }
     }
   } catch (error) {
-    console.error("Error in updateFlashcardGenerationStats service:", error);
+    console.error(`Error in updateFlashcardGenerationStats for user ${userId}:`, error);
     // Don't throw error as this is non-critical functionality
   }
 }
@@ -80,6 +80,7 @@ export async function getFlashcardGenerationStats(
       .single();
 
     if (error) {
+      console.info(`No stats found for user ${userId}, returning default values`);
       // Return default stats if no record exists
       return {
         total_generated: 0,
@@ -104,7 +105,7 @@ export async function getFlashcardGenerationStats(
       last_generation_at: stats.last_generation_at,
     };
   } catch (error) {
-    console.error("Error in getFlashcardGenerationStats service:", error);
+    console.error(`Error in getFlashcardGenerationStats for user ${userId}:`, error);
     // Return default stats if error occurs
     return {
       total_generated: 0,
@@ -139,24 +140,41 @@ export async function updateFlashcardAcceptanceStats(
       .single();
 
     if (fetchError) {
-      console.error("Error fetching flashcard generation stats:", fetchError);
+      console.error(`Error fetching flashcard generation stats for user ${userId}:`, fetchError);
+      
+      // If no record exists, create a new one with the acceptance stats
+      if (fetchError.code === 'PGRST116') {
+        const { error: insertError } = await supabase
+          .from("flashcard_generation_stats")
+          .insert({
+            user_id: userId,
+            total_generated: 0, // We don't know how many were generated
+            total_accepted_direct: directAccepted,
+            total_accepted_edited: editedAccepted,
+            last_generation_at: new Date().toISOString()
+          });
+          
+        if (insertError) {
+          console.error(`Error creating flashcard acceptance stats for user ${userId}:`, insertError);
+        }
+      }
       return;
     }
-
+    
     // Update statistics
     const { error: updateError } = await supabase
       .from("flashcard_generation_stats")
       .update({
         total_accepted_direct: existingStats.total_accepted_direct + directAccepted,
-        total_accepted_edited: existingStats.total_accepted_edited + editedAccepted,
+        total_accepted_edited: existingStats.total_accepted_edited + editedAccepted
       })
       .eq("user_id", userId);
-
+      
     if (updateError) {
-      console.error("Error updating flashcard acceptance stats:", updateError);
+      console.error(`Error updating flashcard acceptance stats for user ${userId}:`, updateError);
     }
   } catch (error) {
-    console.error("Error in updateFlashcardAcceptanceStats service:", error);
+    console.error(`Error in updateFlashcardAcceptanceStats for user ${userId}:`, error);
     // Don't throw error as this is non-critical functionality
   }
 }

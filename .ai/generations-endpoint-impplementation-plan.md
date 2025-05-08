@@ -38,7 +38,7 @@ The `/api/ai/generate-flashcards` endpoint is used to generate educational flash
 - **Response DTO**: 
   ```typescript
   interface GenerateFlashcardsResponseDto {
-    flashcards: GeneratedFlashcardDto[];
+    data: GeneratedFlashcardDto[];
   }
   
   interface GeneratedFlashcardDto {
@@ -64,7 +64,7 @@ The `/api/ai/generate-flashcards` endpoint is used to generate educational flash
 - **Status 200 OK**:
   ```json
   {
-    "flashcards": [
+    "data": [
       {
         "id": "uuid",
         "front": "string",
@@ -260,7 +260,7 @@ The `/api/ai/generate-flashcards` endpoint is used to generate educational flash
 ```typescript
 import type { APIRoute } from "astro";
 import { z } from "zod";
-import { generateFlashcards } from "../../../lib/services/ai-flashcard-service";
+import { generateFlashcards, createFlashcardsResponse } from "../../../lib/services/ai-flashcard-service";
 import { updateFlashcardGenerationStats } from "../../../lib/services/stats-service";
 import { validateUserAccess } from "../../../lib/services/auth-service";
 import type { GenerateFlashcardsResponseDto } from "../../../types";
@@ -344,7 +344,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     await updateFlashcardGenerationStats(supabase, user.id, flashcards.length);
     
     // Return generated flashcards
-    const response: GenerateFlashcardsResponseDto = { flashcards };
+    const response = createFlashcardsResponse(flashcards);
     return new Response(
       JSON.stringify(response),
       { status: 200, headers: { "Content-Type": "application/json" } }
@@ -377,37 +377,40 @@ export const POST: APIRoute = async ({ request, locals }) => {
 };
 ```
 
-### Serwis AI (`/src/lib/services/ai-flashcard-service.ts`):
+### AI Service (`/src/lib/services/ai-flashcard-service.ts`):
 
 ```typescript
-import type { GeneratedFlashcardDto } from "../../../types";
+import type { GeneratedFlashcardDto, GenerateFlashcardsResponseDto } from "../../../types";
 import { generateUUID } from "../utils/uuid";
 
+/**
+ * Generate flashcards from text using AI
+ */
 export async function generateFlashcards(
   text: string,
   collection_id: string | null = null,
   category_id: string | null = null
 ): Promise<GeneratedFlashcardDto[]> {
   try {
-    // Konfiguracja dla zewnętrznego API AI
+    // Configuration for external AI API
     const API_KEY = import.meta.env.OPENROUTER_API_KEY;
     const API_URL = "https://openrouter.ai/api/v1/chat/completions";
     
-    // Przygotowanie promptu dla AI
+    // Prepare prompt for AI
     const prompt = `
-      Wygeneruj fiszki edukacyjne na podstawie poniższego tekstu.
-      Każda fiszka powinna mieć format: "pytanie" na przedzie i "odpowiedź" na tyle.
-      Front fiszki nie powinien przekraczać 200 znaków.
-      Back fiszki nie powinien przekraczać 500 znaków.
-      Wygeneruj od 5 do 15 fiszek, które najlepiej podsumowują najważniejsze informacje z tekstu.
+      Generate educational flashcards based on the text below.
+      Each flashcard should have a "question" on the front and an "answer" on the back.
+      Front of flashcard should not exceed 200 characters.
+      Back of flashcard should not exceed 500 characters.
+      Generate between 5 and 15 flashcards that best summarize the most important information from the text.
       
-      Tekst:
+      Text:
       ${text}
       
-      Format odpowiedzi powinien być tablicą JSON obiektów z polami "front" i "back".
+      Response format should be a JSON array of objects with "front" and "back" fields.
     `;
     
-    // Wywołanie API AI
+    // Call AI API
     const response = await fetch(API_URL, {
       method: "POST",
       headers: {
@@ -428,17 +431,17 @@ export async function generateFlashcards(
     const aiResponse = await response.json();
     const aiContent = aiResponse.choices[0].message.content;
     
-    // Parsowanie odpowiedzi AI
+    // Parse AI response
     let flashcards: Array<{front: string, back: string}>;
     try {
-      // Próba wyciągnięcia JSON z tekstu odpowiedzi
+      // Try to extract JSON from response text
       const jsonMatch = aiContent.match(/```json\n([\s\S]*?)\n```/) || 
                         aiContent.match(/\[([\s\S]*?)\]/);
                         
       const jsonString = jsonMatch ? jsonMatch[1] : aiContent;
       flashcards = JSON.parse(jsonString);
       
-      // Jeśli parsowanie powiodło się, ale wynik nie jest tablicą
+      // If parsing succeeded but result is not an array
       if (!Array.isArray(flashcards)) {
         throw new Error("AI response is not an array");
       }
@@ -447,7 +450,7 @@ export async function generateFlashcards(
       throw new Error("Failed to parse AI-generated flashcards");
     }
     
-    // Walidacja i transformacja fiszek
+    // Validate and transform flashcards
     const validatedFlashcards: GeneratedFlashcardDto[] = flashcards
       .filter(card => 
         card.front && card.front.length <= 200 && 
@@ -461,18 +464,27 @@ export async function generateFlashcards(
         category_id
       }));
     
-    // Sprawdzenie czy mamy wystarczającą liczbę fiszek
+    // Check if we have enough flashcards
     if (validatedFlashcards.length < 5) {
       throw new Error("AI generated too few valid flashcards");
     }
     
-    // Limit do maksymalnie 15 fiszek
+    // Limit to maximum 15 flashcards
     return validatedFlashcards.slice(0, 15);
     
   } catch (error) {
     console.error("Error in generateFlashcards service:", error);
     throw error;
   }
+}
+
+/**
+ * Creates a properly formatted response DTO with generated flashcards
+ */
+export function createFlashcardsResponse(flashcards: GeneratedFlashcardDto[]): GenerateFlashcardsResponseDto {
+  return {
+    data: flashcards
+  };
 }
 ```
 
