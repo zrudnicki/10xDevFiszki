@@ -141,6 +141,10 @@ export interface GeneratedFlashcardDto {
   category_id: string | null;
 }
 
+export interface GenerateFlashcardsResponseDto {
+  flashcards: GeneratedFlashcardDto[];
+}
+
 export interface AcceptFlashcardDto extends GeneratedFlashcardDto {
   was_edited: boolean;
 }

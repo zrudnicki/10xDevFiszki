@@ -581,11 +581,16 @@ Authentication is handled by Supabase Auth. The following endpoints are provided
     ]
   }
   ```
+- **Implementation Notes**: 
+  - Unique UUIDs are generated on the server for each flashcard
+  - These UUIDs are temporary until flashcards are permanently saved
+  - The first flashcard generation for a user automatically creates a stats record
 - **Success Codes**:
   - 200: Flashcards generated successfully
 - **Error Codes**:
   - 400: Invalid request body (text length outside of 1000-10000 characters)
   - 401: Unauthorized
+  - 404: Collection or category not found (if IDs provided)
   - 500: Server error
 
 #### Accept Generated Flashcards
@@ -643,6 +648,10 @@ Authentication is handled by Supabase Auth. The following endpoints are provided
 - **Method**: GET
 - **Path**: `/api/stats/generation`
 - **Description**: Get statistics about AI-generated flashcards
+- **Implementation Notes**:
+  - Stats record is automatically created on first flashcard generation
+  - Acceptance rate is calculated as (total_accepted_direct + total_accepted_edited) / total_generated
+  - If no flashcards have been generated yet, endpoint returns default values with zeroes
 - **Response**:
   ```json
   {
