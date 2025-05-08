@@ -5,7 +5,7 @@ alwaysApply: false
 ---
 # Project Structure Guide
 
-The main entry point of the project is likely located in a file such as [index.js](mdc:index.js) or [main.py](mdc:main.py), depending on your stack. Configuration files are typically found in [config.js](mdc:config.js) or [settings.py](mdc:settings.py). Source code is organized by feature or domain within the `src/` directory, and tests are located in the `tests/` directory.
+The main entry point of the project is likely located in a file such as [index.js](mdc:index.js), depending on your stack. Configuration files are typically found in [config.js](mdc:config.js). Source code is organized by feature or domain within the `src/` directory, and tests are located in the `tests/` directory.
 
 Refer to the README for more details on project organization.
 
