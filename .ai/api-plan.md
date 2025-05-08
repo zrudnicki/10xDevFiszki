@@ -404,6 +404,7 @@ Authentication is handled by Supabase Auth. The following endpoints are provided
 - **Request Body**:
   ```json
   {
+    "id": "uuid",
     "flashcards": [
       {
         "front": "string",
