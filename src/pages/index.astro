@@ -1,8 +1,102 @@
 ---
-import Welcome from "../components/Welcome.astro";
-import Layout from "../layouts/Layout.astro";
+import MainLayout from '../layouts/MainLayout.astro';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { Progress } from '../components/ui/progress';
+
+// Mock data - replace with actual data fetching
+const recentCollections = [
+  { id: 1, name: 'JavaScript Basics', category: 'Frontend', lastUsed: '2024-03-20' },
+  { id: 2, name: 'React Hooks', category: 'Frontend', lastUsed: '2024-03-19' },
+  { id: 3, name: 'TypeScript Types', category: 'Frontend', lastUsed: '2024-03-18' },
+];
+
+const stats = {
+  totalCards: 150,
+  cardsToReview: 25,
+  reviewProgress: 75,
+};
+
+const categoryStats = [
+  { category: 'Frontend', correct: 8, total: 10 },
+  { category: 'Backend', correct: 6, total: 10 },
+  { category: 'DevOps', correct: 7, total: 10 },
+];
 ---
 
-<Layout>
-  <Welcome />
-</Layout>
+<MainLayout title="Dashboard">
+  <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <!-- Recent Collections -->
+    <Card>
+      <CardHeader>
+        <CardTitle>Ostatnie kolekcje</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <ul class="space-y-2">
+          {recentCollections.map((collection) => (
+            <li>
+              <a
+                href={`/collections/${collection.id}`}
+                class="block p-2 rounded-lg hover:bg-accent"
+              >
+                <div class="font-medium">{collection.name}</div>
+                <div class="text-sm text-muted-foreground">
+                  {collection.category} • Ostatnio używane: {collection.lastUsed}
+                </div>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </CardContent>
+    </Card>
+
+    <!-- Review Stats -->
+    <Card>
+      <CardHeader>
+        <CardTitle>Statystyki powtórek</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div class="space-y-4">
+          <div>
+            <div class="flex justify-between mb-1">
+              <span>Postęp powtórek</span>
+              <span>{stats.reviewProgress}%</span>
+            </div>
+            <Progress value={stats.reviewProgress} />
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="p-3 rounded-lg bg-accent">
+              <div class="text-2xl font-bold">{stats.totalCards}</div>
+              <div class="text-sm text-muted-foreground">Wszystkie fiszki</div>
+            </div>
+            <div class="p-3 rounded-lg bg-accent">
+              <div class="text-2xl font-bold">{stats.cardsToReview}</div>
+              <div class="text-sm text-muted-foreground">Do powtórki</div>
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+
+    <!-- Category Stats -->
+    <Card>
+      <CardHeader>
+        <CardTitle>Statystyki kategorii</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div class="space-y-4">
+          {categoryStats.map((stat) => (
+            <div>
+              <div class="flex justify-between mb-1">
+                <span>{stat.category}</span>
+                <span>
+                  {stat.correct}/{stat.total}
+                </span>
+              </div>
+              <Progress value={(stat.correct / stat.total) * 100} />
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  </div>
+</MainLayout>

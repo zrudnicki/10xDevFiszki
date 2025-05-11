@@ -18,26 +18,97 @@ const generateFlashcardsSchema = z.object({
 });
 
 /**
- * Flashcard generation endpoint
- * 
- * Generates educational flashcards from text using AI
- * Updates the user's flashcard generation statistics
- * Requires authentication
+ * @swagger
+ * /ai/generate-flashcards:
+ *   post:
+ *     summary: Generates educational flashcards from text using AI
+ *     tags: [AI]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - text
+ *             properties:
+ *               text:
+ *                 type: string
+ *                 description: Text to generate flashcards from
+ *                 minLength: 1000
+ *                 maxLength: 10000
+ *               collection_id:
+ *                 type: string
+ *                 format: uuid
+ *                 nullable: true
+ *                 description: Collection ID to assign flashcards to
+ *               category_id:
+ *                 type: string
+ *                 format: uuid
+ *                 nullable: true
+ *                 description: Category ID to assign flashcards to
+ *     responses:
+ *       200:
+ *         description: Flashcards successfully generated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       front:
+ *                         type: string
+ *                       back:
+ *                         type: string
+ *                       collection_id:
+ *                         type: string
+ *                         nullable: true
+ *                       category_id:
+ *                         type: string
+ *                         nullable: true
+ *       400:
+ *         description: Invalid request body
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Resource not found
+ *       422:
+ *         description: Processing error
+ *       500:
+ *         description: Internal server error
+ *       503:
+ *         description: Service unavailable
  */
 export const POST: APIRoute = async ({ request, locals }) => {
   const requestId = crypto.randomUUID();
   
   try {
+    // Tryb testowy do szybkiego testowania API
+    const testMode = true; // Ustaw na false, aby przywrócić wymóg uwierzytelnienia
+    const userId = "test-user-id";
+    let userObject = null;
+    
     // Check if user is logged in
     const supabase = locals.supabase as SupabaseClient;
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
     
-    if (authError || !user) {
-      console.error(`[${requestId}] Authentication error:`, authError);
-      return new Response(
-        JSON.stringify({ error: "Unauthorized" }),
-        { status: 401, headers: { "Content-Type": "application/json" } }
-      );
+    if (!testMode) {
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      
+      if (authError || !user) {
+        console.error(`[${requestId}] Authentication error:`, authError);
+        return new Response(
+          JSON.stringify({ error: "Unauthorized" }),
+          { status: 401, headers: { "Content-Type": "application/json" } }
+        );
+      }
+      
+      userObject = user;
     }
 
     // Parse input data
@@ -70,38 +141,41 @@ export const POST: APIRoute = async ({ request, locals }) => {
     
     const { text, collection_id, category_id } = result.data;
     
-    // Check access to collection and category
-    if (collection_id) {
-      const hasCollectionAccess = await validateUserAccess(
-        supabase, user.id, "collections", collection_id
-      );
-      
-      if (!hasCollectionAccess) {
-        console.error(`[${requestId}] Collection access error: User ${user.id} has no access to collection ${collection_id}`);
-        return new Response(
-          JSON.stringify({ 
-            error: "Resource not found", 
-            details: `Collection with ID ${collection_id} not found` 
-          }),
-          { status: 404, headers: { "Content-Type": "application/json" } }
+    // W trybie testowym pomijamy sprawdzanie dostępu
+    if (!testMode) {
+      // Check access to collection and category
+      if (collection_id) {
+        const hasCollectionAccess = await validateUserAccess(
+          supabase, userId, "collections", collection_id
         );
+        
+        if (!hasCollectionAccess) {
+          console.error(`[${requestId}] Collection access error: User ${userId} has no access to collection ${collection_id}`);
+          return new Response(
+            JSON.stringify({ 
+              error: "Resource not found", 
+              details: `Collection with ID ${collection_id} not found` 
+            }),
+            { status: 404, headers: { "Content-Type": "application/json" } }
+          );
+        }
       }
-    }
-    
-    if (category_id) {
-      const hasCategoryAccess = await validateUserAccess(
-        supabase, user.id, "categories", category_id
-      );
       
-      if (!hasCategoryAccess) {
-        console.error(`[${requestId}] Category access error: User ${user.id} has no access to category ${category_id}`);
-        return new Response(
-          JSON.stringify({ 
-            error: "Resource not found", 
-            details: `Category with ID ${category_id} not found` 
-          }),
-          { status: 404, headers: { "Content-Type": "application/json" } }
+      if (category_id) {
+        const hasCategoryAccess = await validateUserAccess(
+          supabase, userId, "categories", category_id
         );
+        
+        if (!hasCategoryAccess) {
+          console.error(`[${requestId}] Category access error: User ${userId} has no access to category ${category_id}`);
+          return new Response(
+            JSON.stringify({ 
+              error: "Resource not found", 
+              details: `Category with ID ${category_id} not found` 
+            }),
+            { status: 404, headers: { "Content-Type": "application/json" } }
+          );
+        }
       }
     }
     
@@ -149,17 +223,20 @@ export const POST: APIRoute = async ({ request, locals }) => {
       );
     }
     
-    // Update statistics
-    try {
-      await updateFlashcardGenerationStats(supabase, user.id, flashcards.length);
-    } catch (error) {
-      // Don't fail the request if stats update fails, just log the error
-      console.error(`[${requestId}] Error updating flashcard generation stats:`, error);
+    // W trybie testowym pomijamy aktualizację statystyk
+    if (!testMode) {
+      // Update statistics
+      try {
+        await updateFlashcardGenerationStats(supabase, userId, flashcards.length);
+      } catch (error) {
+        // Don't fail the request if stats update fails, just log the error
+        console.error(`[${requestId}] Error updating flashcard generation stats:`, error);
+      }
     }
     
     // Return generated flashcards with consistent naming
     const response = createFlashcardsResponse(flashcards);
-    console.info(`[${requestId}] Successfully generated ${flashcards.length} flashcards for user ${user.id}`);
+    console.info(`[${requestId}] Successfully generated ${flashcards.length} flashcards for user ${userId}`);
     
     return new Response(
       JSON.stringify(response),

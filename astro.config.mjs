@@ -13,6 +13,11 @@ export default defineConfig({
   server: { port: 3000 },
   vite: {
     plugins: [tailwindcss()],
+    resolve: {
+      alias: {
+        "/node_modules/swagger-ui-dist": "swagger-ui-dist",
+      },
+    },
   },
   adapter: node({
     mode: "standalone",

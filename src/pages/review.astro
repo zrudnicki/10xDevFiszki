@@ -1,0 +1,58 @@
+import MainLayout from '../layouts/MainLayout.astro';
+import { Flashcard } from '../components/Flashcard';
+
+---
+// Mock data - replace with actual data fetching
+const flashcards = [
+  {
+    id: 1,
+    question: 'What is React?',
+    answer: 'React is a JavaScript library for building user interfaces.',
+  },
+  {
+    id: 2,
+    question: 'What are React Hooks?',
+    answer: 'React Hooks are functions that let you use state and other React features in functional components.',
+  },
+  {
+    id: 3,
+    question: 'What is TypeScript?',
+    answer: 'TypeScript is a typed superset of JavaScript that compiles to plain JavaScript.',
+  },
+];
+---
+
+<MainLayout title="Powtórka">
+  <div class="container mx-auto max-w-4xl">
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold mb-2">Powtórka fiszek</h1>
+      <p class="text-muted-foreground">
+        Kliknij na kartę, aby zobaczyć odpowiedź. Użyj przycisków poniżej, aby ocenić swoją odpowiedź.
+      </p>
+    </div>
+
+    <div class="mb-8">
+      <Flashcard
+        client:load
+        question={flashcards[0].question}
+        answer={flashcards[0].answer}
+      />
+    </div>
+
+    <div class="flex justify-center gap-4">
+      <button class="px-4 py-2 rounded-lg bg-destructive text-destructive-foreground hover:bg-destructive/90">
+        Nie pamiętam
+      </button>
+      <button class="px-4 py-2 rounded-lg bg-yellow-500 text-yellow-950 hover:bg-yellow-500/90">
+        Prawie
+      </button>
+      <button class="px-4 py-2 rounded-lg bg-green-500 text-green-950 hover:bg-green-500/90">
+        Pamiętam
+      </button>
+    </div>
+
+    <div class="mt-8 text-center text-sm text-muted-foreground">
+      Pozostało fiszek: {flashcards.length}
+    </div>
+  </div>
+</MainLayout> 

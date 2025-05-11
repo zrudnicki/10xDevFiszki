@@ -1,5 +1,38 @@
 import type { GeneratedFlashcardDto, GenerateFlashcardsResponseDto } from "../../types";
 import { generateUUID } from "../utils/uuid";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
+// // Dane testowe do trybu rozwojowego
+// const MOCK_FLASHCARDS = [
+//   {
+//     front: "Co to jest Astro?",
+//     back: "Astro to framework do budowania stron, który pozwala na server-side rendering (SSR) oraz client-side rendering. Umożliwia wykorzystanie wielu frameworków UI jednocześnie i optymalizację wydajności.",
+//   },
+//   {
+//     front: "Co to jest Tailwind CSS?",
+//     back: "Tailwind CSS to framework CSS typu utility-first, który pozwala na szybkie tworzenie interfejsów użytkownika poprzez stosowanie gotowych klas bezpośrednio w HTML. Nie wymaga pisania własnego CSS.",
+//   },
+//   {
+//     front: "Co to jest fiszka?",
+//     back: "Fiszka to narzędzie edukacyjne w formie karty z pytaniem na jednej stronie i odpowiedzią na drugiej, używane w procesie aktywnej nauki i powtórek.",
+//   },
+//   {
+//     front: "Jakie są zalety nauki z wykorzystaniem fiszek?",
+//     back: "Zalety to: aktywne uczenie się, wykorzystanie efektu testowania, spaced repetition (powtórki w odstępach czasowych), możliwość personalizacji materiału, mobilność i wygoda użycia.",
+//   },
+//   {
+//     front: "Czym jest spaced repetition?",
+//     back: "To technika uczenia się polegająca na powtarzaniu materiału w rosnących odstępach czasowych. Gdy materiał jest dobrze zapamiętany, odstęp między powtórkami wydłuża się, co zwiększa efektywność nauki.",
+//   },
+//   {
+//     front: "Co to jest React?",
+//     back: "React to biblioteka JavaScript do budowania interfejsów użytkownika, oparta na komponentach. Pozwala na efektywne aktualizowanie widoku poprzez wirtualny DOM.",
+//   },
+//   {
+//     front: "Czym jest TypeScript?",
+//     back: "TypeScript to typowany nadzbiór JavaScript, który kompiluje się do czystego JavaScript. Dodaje opcjonalne typy statyczne, klasy i interfejsy, poprawiając wykrywanie błędów podczas rozwoju aplikacji.",
+//   },
+// ];
 
 /**
  * Generate flashcards from text using AI
@@ -15,9 +48,17 @@ export async function generateFlashcards(
   category_id: string | null = null
 ): Promise<GeneratedFlashcardDto[]> {
   try {
-    // Configuration for external AI API
-    const API_KEY = import.meta.env.OPENROUTER_API_KEY;
-    const API_URL = "https://openrouter.ai/api/v1/chat/completions";
+    // Configuration for Google Gemini API
+    const API_KEY = import.meta.env.GEMINI_API_KEY;
+    
+    if (!API_KEY) {
+      console.error("Brak klucza API dla Gemini");
+      throw new Error("AI API error: Brak klucza API");
+    }
+
+    // Inicjalizacja API Gemini
+    const genAI = new GoogleGenerativeAI(API_KEY);
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
     // Prepare prompt for AI
     const prompt = `
@@ -31,37 +72,26 @@ export async function generateFlashcards(
       ${text}
       
       Response format should be a JSON array of objects with "front" and "back" fields.
+      Ensure the response is a valid JSON array. Do not include any additional text or formatting.
     `;
 
-    // Call AI API
-    const response = await fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: "google/gemini-pro",
-        messages: [{ role: "user", content: prompt }],
-        temperature: 0.3,
-      }),
+    // Call AI API with proper structure
+    const result = await model.generateContent({
+      contents: [{
+        role: "user",
+        parts: [{ text: prompt }]
+      }]
     });
-
-    if (!response.ok) {
-      throw new Error(`AI API error: ${response.status} ${response.statusText}`);
-    }
-
-    const aiResponse = await response.json();
-    const aiContent = aiResponse.choices[0].message.content;
-
+    const aiContent = result.response.text();
+    
     // Parse AI response
     let flashcards: { front: string; back: string }[];
     try {
       // Try to extract JSON from response text
       const jsonMatch = aiContent.match(/```json\n([\s\S]*?)\n```/) || aiContent.match(/\[([\s\S]*?)\]/);
-
+      
       const jsonString = jsonMatch ? jsonMatch[1] : aiContent;
-      flashcards = JSON.parse(jsonString);
+      flashcards = JSON.parse(jsonString.trim());
 
       // If parsing succeeded but result is not an array
       if (!Array.isArray(flashcards)) {
@@ -98,12 +128,12 @@ export async function generateFlashcards(
 
 /**
  * Creates a properly formatted response DTO with generated flashcards
- * 
+ *
  * @param flashcards - The array of generated flashcards
  * @returns GenerateFlashcardsResponseDto - The formatted response object
  */
 export function createFlashcardsResponse(flashcards: GeneratedFlashcardDto[]): GenerateFlashcardsResponseDto {
   return {
-    data: flashcards
+    data: flashcards,
   };
 }

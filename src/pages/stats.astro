@@ -1,0 +1,111 @@
+import MainLayout from '../layouts/MainLayout.astro';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { Progress } from '../components/ui/progress';
+
+---
+// Mock data - replace with actual data fetching
+const stats = {
+  totalCards: 500,
+  cardsReviewed: 350,
+  averageScore: 85,
+  categories: [
+    {
+      name: 'Frontend',
+      totalCards: 200,
+      reviewedCards: 150,
+      averageScore: 90
+    },
+    {
+      name: 'Backend',
+      totalCards: 200,
+      reviewedCards: 150,
+      averageScore: 80
+    },
+    {
+      name: 'DevOps',
+      totalCards: 100,
+      reviewedCards: 50,
+      averageScore: 85
+    }
+  ]
+};
+---
+
+<MainLayout title="Statystyki">
+  <div class="container mx-auto">
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold mb-2">Statystyki</h1>
+      <p class="text-muted-foreground">
+        Śledź swój postęp w nauce i wyniki w poszczególnych kategoriach.
+      </p>
+    </div>
+
+    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <Card>
+        <CardHeader>
+          <CardTitle>Ogólny postęp</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div class="space-y-4">
+            <div>
+              <div class="flex justify-between mb-1">
+                <span>Przejrzane fiszki</span>
+                <span>
+                  {stats.cardsReviewed}/{stats.totalCards}
+                </span>
+              </div>
+              <Progress
+                value={(stats.cardsReviewed / stats.totalCards) * 100}
+              />
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="p-3 rounded-lg bg-accent">
+                <div class="text-2xl font-bold">{stats.averageScore}%</div>
+                <div class="text-sm text-muted-foreground">
+                  Średni wynik
+                </div>
+              </div>
+              <div class="p-3 rounded-lg bg-accent">
+                <div class="text-2xl font-bold">
+                  {stats.totalCards - stats.cardsReviewed}
+                </div>
+                <div class="text-sm text-muted-foreground">
+                  Do powtórki
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {stats.categories.map((category) => (
+        <Card>
+          <CardHeader>
+            <CardTitle>{category.name}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div class="space-y-4">
+              <div>
+                <div class="flex justify-between mb-1">
+                  <span>Przejrzane fiszki</span>
+                  <span>
+                    {category.reviewedCards}/{category.totalCards}
+                  </span>
+                </div>
+                <Progress
+                  value={(category.reviewedCards / category.totalCards) * 100}
+                />
+              </div>
+              <div class="p-3 rounded-lg bg-accent">
+                <div class="text-2xl font-bold">{category.averageScore}%</div>
+                <div class="text-sm text-muted-foreground">
+                  Średni wynik
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  </div>
+</MainLayout> 

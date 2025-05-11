@@ -5,10 +5,35 @@ import type { SupabaseClient } from "../../../db/supabase.client";
 export const prerender = false;
 
 /**
- * Flashcard generation statistics endpoint
- * 
- * Returns statistics about generated flashcards for the authenticated user
- * Requires authentication
+ * @swagger
+ * /stats/generation:
+ *   get:
+ *     summary: Get flashcard generation statistics for the authenticated user
+ *     tags: [Statistics]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Statistics successfully retrieved
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 total_generated:
+ *                   type: integer
+ *                   description: Total number of flashcards generated
+ *                 total_generation_requests:
+ *                   type: integer
+ *                   description: Total number of generation requests
+ *                 average_per_request:
+ *                   type: number
+ *                   format: float
+ *                   description: Average number of flashcards per request
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Internal server error
  */
 export const GET: APIRoute = async ({ locals }) => {
   const requestId = crypto.randomUUID();

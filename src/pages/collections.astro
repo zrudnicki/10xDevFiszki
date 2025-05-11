@@ -1,0 +1,73 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+
+// Mock data - replace with actual data fetching
+const categories = [
+  {
+    id: 1,
+    name: 'Frontend',
+    collections: [
+      { id: 1, name: 'JavaScript Basics', cardCount: 50 },
+      { id: 2, name: 'React Hooks', cardCount: 30 },
+      { id: 3, name: 'TypeScript Types', cardCount: 40 },
+    ],
+  },
+  {
+    id: 2,
+    name: 'Backend',
+    collections: [
+      { id: 4, name: 'Node.js Fundamentals', cardCount: 45 },
+      { id: 5, name: 'Express.js', cardCount: 35 },
+      { id: 6, name: 'Database Design', cardCount: 55 },
+    ],
+  },
+  {
+    id: 3,
+    name: 'DevOps',
+    collections: [
+      { id: 7, name: 'Docker Basics', cardCount: 40 },
+      { id: 8, name: 'Kubernetes', cardCount: 50 },
+      { id: 9, name: 'CI/CD', cardCount: 30 },
+    ],
+  },
+];
+---
+
+<MainLayout title="Kolekcje">
+  <div class="container mx-auto">
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold mb-2">Kolekcje</h1>
+      <p class="text-muted-foreground">
+        Wybierz kategorię i kolekcję, aby rozpocząć naukę.
+      </p>
+    </div>
+
+    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {categories.map((category) => (
+        <Card>
+          <CardHeader>
+            <CardTitle>{category.name}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul class="space-y-2">
+              {category.collections.map((collection) => (
+                <li>
+                  <a
+                    href={`/collections/${collection.id}`}
+                    class="block p-2 rounded-lg hover:bg-accent"
+                  >
+                    <div class="font-medium">{collection.name}</div>
+                    <div class="text-sm text-muted-foreground">
+                      {collection.cardCount} fiszek
+                    </div>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  </div>
+</MainLayout> 
