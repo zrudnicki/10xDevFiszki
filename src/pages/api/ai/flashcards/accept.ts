@@ -24,7 +24,7 @@ const acceptFlashcardsSchema = z.object({
 
 /**
  * Flashcard acceptance endpoint
- * 
+ *
  * Accepts and persists AI-generated flashcards
  * Updates the user's flashcard acceptance statistics
  * Requires authentication
