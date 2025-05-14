@@ -3,7 +3,7 @@ import { z } from "zod";
 import { validateUserAccess } from "../../../../lib/services/auth-service";
 import { updateFlashcardAcceptanceStats } from "../../../../lib/services/stats-service";
 import type { AcceptFlashcardDto, AcceptFlashcardsDto, AcceptFlashcardsResponseDto } from "../../../../types";
-import type { SupabaseClient } from "../../../../db/supabase.client";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 export const prerender = false;
 

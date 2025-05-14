@@ -1,10 +1,20 @@
 {
-  "[typescript]": {
-    "editor.defaultFormatter": "denoland.vscode-deno"
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "files.eol": "\n",
+  "editor.codeActionsOnSave": {
+    "source.fixAll": "explicit"
   },
-  "deno.enablePaths": [
-    "supabase/functions"
-  ],
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "deno.enablePaths": ["supabase/functions"],
   "deno.lint": true,
   "deno.unstable": [
     "bare-node-builtins",
