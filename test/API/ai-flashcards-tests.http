@@ -1,0 +1,85 @@
+# Testy integracyjne dla endpointu generowania fiszek AI
+# Ten plik zawiera zestaw zapytań HTTP testujących endpoint /api/ai/generate-flashcards
+# Testy pokrywają różne przypadki użycia i obsługi błędów
+
+### Variables
+@baseUrl = http://localhost:3001
+@apiEndpoint = {{baseUrl}}/api/ai/generate-flashcards
+@validText = Ten tekst musi mieć co najmniej 1000 znaków. Tutaj powinien być dłuższy tekst, który będzie służył jako podstawa do generowania fiszek. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+
+### Test 1: Podstawowe generowanie fiszek
+# Oczekiwany rezultat: Status 200 OK i lista wygenerowanych fiszek (co najmniej 5)
+POST {{apiEndpoint}}
+Content-Type: application/json
+
+{
+  "text": "{{validText}}"
+}
+
+### Test 2: Generowanie fiszek z przypisaniem do kolekcji
+# Oczekiwany rezultat: Status 200 OK i fiszki przypisane do kolekcji
+POST {{apiEndpoint}}
+Content-Type: application/json
+
+{
+  "text": "{{validText}}",
+  "collection_id": "550e8400-e29b-41d4-a716-446655440000"
+}
+
+### Test 3: Generowanie fiszek z przypisaniem do kategorii
+# Oczekiwany rezultat: Status 200 OK i fiszki przypisane do kategorii
+POST {{apiEndpoint}}
+Content-Type: application/json
+
+{
+  "text": "{{validText}}",
+  "category_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+}
+
+### Test 4: Zbyt krótki tekst
+# Oczekiwany rezultat: Status 400 Bad Request z informacją o błędzie walidacji
+POST {{apiEndpoint}}
+Content-Type: application/json
+
+{
+  "text": "Zbyt krótki tekst."
+}
+
+### Test 5: Zbyt długi tekst
+# Oczekiwany rezultat: Status 400 Bad Request z informacją o błędzie walidacji
+POST {{apiEndpoint}}
+Content-Type: application/json
+
+{
+  "text": "{{validText}}{{validText}}{{validText}}{{validText}}{{validText}}{{validText}}{{validText}}{{validText}}{{validText}}{{validText}}"
+}
+
+### Test 6: Niepoprawny format UUID dla kolekcji
+# Oczekiwany rezultat: Status 400 Bad Request z informacją o błędnym formacie UUID
+POST {{apiEndpoint}}
+Content-Type: application/json
+
+{
+  "text": "{{validText}}",
+  "collection_id": "niepoprawne-uuid"
+}
+
+### Test 7: Nieistniejąca kolekcja
+# Oczekiwany rezultat: Status 404 Not Found z informacją o nieznalezionej kolekcji
+POST {{apiEndpoint}}
+Content-Type: application/json
+
+{
+  "text": "{{validText}}",
+  "collection_id": "00000000-0000-0000-0000-000000000000"
+}
+
+### Test 8: Dostęp bez autoryzacji
+# Oczekiwany rezultat: Status 401 Unauthorized
+# Uwaga: Ten test zadziała tylko gdy wylogujemy się lub usuniemy cookie sesji
+POST {{apiEndpoint}}
+Content-Type: application/json
+
+{
+  "text": "{{validText}}"
+}

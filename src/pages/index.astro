@@ -1,8 +1,116 @@
 ---
-import Welcome from "../components/Welcome.astro";
 import Layout from "../layouts/Layout.astro";
+import { getSupabaseServerClient } from "@/lib/supabase/server";
+
+// Check authentication using server-side client
+const supabase = await getSupabaseServerClient(Astro.cookies);
+const { data: { session }, error: authError } = await supabase.auth.getSession();
+
+if (authError) {
+  console.error("Auth error:", authError);
+  return Astro.redirect("/login?error=auth");
+}
+
+if (!session) {
+  console.log("No session found, redirecting to login");
+  return Astro.redirect("/login");
+}
+
+// Get user's collections and categories
+const { data: collections, error: collectionsError } = await supabase
+  .from("collections")
+  .select("*")
+  .order("created_at", { ascending: false });
+
+const { data: categories, error: categoriesError } = await supabase
+  .from("categories")
+  .select("*")
+  .order("created_at", { ascending: false });
+
+if (collectionsError) {
+  console.error("Error fetching collections:", collectionsError);
+}
+
+if (categoriesError) {
+  console.error("Error fetching categories:", categoriesError);
+}
 ---
 
-<Layout>
-  <Welcome />
+<Layout title="Dashboard">
+  <div class="container mx-auto px-4 py-8">
+    <header class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
+    </header>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <!-- Collections Section -->
+      <section>
+        <h2 class="text-2xl font-semibold mb-4">Your Collections</h2>
+        {collections && collections.length > 0 ? (
+          <div class="grid gap-4">
+            {collections.map((collection) => (
+              <a
+                href={`/collections/${collection.id}`}
+                class="p-4 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-md transition-shadow"
+              >
+                <h3 class="text-lg font-medium">{collection.name}</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                  {collection.description || "No description"}
+                </p>
+              </a>
+            ))}
+          </div>
+        ) : (
+          <p class="text-gray-600 dark:text-gray-400">No collections yet. Create your first one!</p>
+        )}
+      </section>
+
+      <!-- Categories Section -->
+      <section>
+        <h2 class="text-2xl font-semibold mb-4">Your Categories</h2>
+        {categories && categories.length > 0 ? (
+          <div class="grid gap-4">
+            {categories.map((category) => (
+              <a
+                href={`/categories/${category.id}`}
+                class="p-4 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-md transition-shadow"
+              >
+                <h3 class="text-lg font-medium">{category.name}</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                  {category.description || "No description"}
+                </p>
+              </a>
+            ))}
+          </div>
+        ) : (
+          <p class="text-gray-600 dark:text-gray-400">No categories yet. Create your first one!</p>
+        )}
+      </section>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="mt-8">
+      <h2 class="text-2xl font-semibold mb-4">Quick Actions</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        <a
+          href="/study"
+          class="p-4 bg-primary text-white rounded-lg shadow hover:shadow-md transition-shadow text-center"
+        >
+          Start Study Session
+        </a>
+        <a
+          href="/generator/input"
+          class="p-4 bg-primary text-white rounded-lg shadow hover:shadow-md transition-shadow text-center"
+        >
+          Generate Flashcards
+        </a>
+        <a
+          href="/collections/new"
+          class="p-4 bg-primary text-white rounded-lg shadow hover:shadow-md transition-shadow text-center"
+        >
+          Create Collection
+        </a>
+      </div>
+    </div>
+  </div>
 </Layout>

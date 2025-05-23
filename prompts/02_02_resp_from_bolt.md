@@ -36,7 +36,6 @@ Test the full user flow
 Documentation and code cleanup
 Would you like me to proceed with implementing this plan? I'll wait for your explicit approval before writing any code.
 
-
 =====
 Based on your requirements, I'll develop a focused MVP for "Fiszki," an AI-powered flash card generator. The application will provide a clean, intuitive interface for users to input text and receive AI-generated educational flash cards with minimal complexity.
 

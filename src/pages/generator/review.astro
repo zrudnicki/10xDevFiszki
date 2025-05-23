@@ -1,0 +1,132 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getSupabase, isAuthenticated } from "@/lib/supabase/client";
+import { FlashcardReviewCard } from "../../components/generator/FlashcardReviewCard";
+import { FlashcardActionButtons } from "../../components/generator/FlashcardActionButtons";
+import { FlashcardEditModal } from "../../components/generator/FlashcardEditModal";
+import type { GeneratorFlashcardViewModel } from "../../types";
+
+// Check authentication
+const isAuthed = await isAuthenticated();
+if (!isAuthed) {
+  return Response.redirect(new URL("/login", Astro.url));
+}
+
+const supabase = getSupabase();
+const { data: { user } } = await supabase.auth.getUser();
+
+if (!user) {
+  return Response.redirect(new URL("/login", Astro.url));
+}
+
+// Get the flashcards from the URL
+const url = new URL(Astro.request.url);
+const flashcardsParam = url.searchParams.get("flashcards");
+
+if (!flashcardsParam) {
+  return Response.redirect(new URL("/generator/input", Astro.url));
+}
+
+let flashcards: GeneratorFlashcardViewModel[];
+try {
+  flashcards = JSON.parse(decodeURIComponent(flashcardsParam));
+} catch (e) {
+  console.error("Failed to parse flashcards:", e);
+  return Response.redirect(new URL("/generator/input", Astro.url));
+}
+
+// Get user's collections for the dropdown
+const { data: collections } = await supabase
+  .from("collections")
+  .select("id, name")
+  .eq("user_id", user.id)
+  .order("created_at", { ascending: false });
+
+// Get user's categories for the dropdown
+const { data: categories } = await supabase
+  .from("categories")
+  .select("id, name")
+  .eq("user_id", user.id)
+  .order("created_at", { ascending: false });
+
+// Declare global types
+declare global {
+  interface Window {
+    currentEditId: string | null;
+    updateStats: () => void;
+    saveFlashcards: () => Promise<void>;
+  }
+}
+
+// Serialize flashcards for client-side use
+const serializedFlashcards = JSON.stringify(flashcards);
+---
+
+<Layout title="Review Flashcards">
+  <div class="container mx-auto px-4 py-8">
+    <h1 class="text-2xl font-bold mb-6">Review Generated Flashcards</h1>
+    <div class="grid gap-6">
+      {flashcards.map((flashcard: GeneratorFlashcardViewModel) => (
+        <FlashcardReviewCard
+          flashcard={flashcard}
+          onFlip={() => {}}
+        />
+      ))}
+    </div>
+    <FlashcardActionButtons 
+      flashcard={flashcards[0]}
+      onAccept={() => {}}
+      onReject={() => {}}
+      onEdit={() => {}}
+    />
+    <FlashcardEditModal 
+      isOpen={false}
+      onClose={() => {}}
+      onSave={() => {}}
+      flashcard={flashcards[0]}
+    />
+  </div>
+</Layout>
+
+<script>
+  // Import type
+  type GeneratorFlashcardViewModel = {
+    id: string;
+    front: string;
+    back: string;
+    status: 'pending' | 'accepted' | 'rejected';
+    was_edited: boolean;
+  };
+
+  // State
+  window.currentEditId = null;
+  const flashcards: GeneratorFlashcardViewModel[] = JSON.parse('{serializedFlashcards}');
+  
+  // DOM elements
+  const acceptedCount = document.getElementById('acceptedCount');
+  const rejectedCount = document.getElementById('rejectedCount');
+  const pendingCount = document.getElementById('pendingCount');
+  
+  // Update stats
+  window.updateStats = function() {
+    const stats = {
+      accepted: flashcards.filter((card: GeneratorFlashcardViewModel) => card.status === 'accepted').length,
+      rejected: flashcards.filter((card: GeneratorFlashcardViewModel) => card.status === 'rejected').length,
+      pending: flashcards.filter((card: GeneratorFlashcardViewModel) => card.status === 'pending').length
+    };
+    
+    if (acceptedCount) acceptedCount.textContent = String(stats.accepted);
+    if (rejectedCount) rejectedCount.textContent = String(stats.rejected);
+    if (pendingCount) pendingCount.textContent = String(stats.pending);
+  }
+
+  // Save flashcards
+  window.saveFlashcards = async function() {
+    const acceptedFlashcards = flashcards.filter((card: GeneratorFlashcardViewModel) => card.status === 'accepted');
+    sessionStorage.setItem('acceptedFlashcards', JSON.stringify(acceptedFlashcards));
+    window.location.href = '/generator/save';
+  }
+
+  // Initialize stats
+  window.updateStats();
+</script>

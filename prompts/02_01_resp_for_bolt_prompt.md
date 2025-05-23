@@ -6,20 +6,23 @@ Jesteś generatorem proof-of-concept dla aplikacji „Fiszki”. Na podstawie op
    c. Proste wyświetlenie wyników (bez edycji, tagów, recenzji czy uwierzytelniania)
 
 2. Opisz architekturę minimalną z użyciem:
-   - Frontend: Astro 5 + React 19 + TypeScript 5 + Tailwind 4 + Shadcn/ui  
-   - Backend: Supabase (PostgreSQL + autoryzacja)  
-   - AI: Openrouter.ai (model OpenAI/inne)  
+
+   - Frontend: Astro 5 + React 19 + TypeScript 5 + Tailwind 4 + Shadcn/ui
+   - Backend: Supabase (PostgreSQL + autoryzacja)
+   - AI: Openrouter.ai (model OpenAI/inne)
 
 3. Przedstaw kluczowe kroki realizacji:
-   1. Stworzenie formularza wejściowego dla tekstu  
-   2. Integracja z Openrouter.ai do generowania fiszek  
-   3. Wyświetlenie listy wygenerowanych fiszek  
-   4. Podstawowa walidacja długości tekstu  
+
+   1. Stworzenie formularza wejściowego dla tekstu
+   2. Integracja z Openrouter.ai do generowania fiszek
+   3. Wyświetlenie listy wygenerowanych fiszek
+   4. Podstawowa walidacja długości tekstu
 
 4. Wskaż deliverables i kamienie milowe:
-   - Prototyp formularza wejściowego (Dzień 1)  
-   - Połączenie z AI i wygenerowanie przykładowych fiszek (Dzień 2)  
-   - Minimalny interfejs wyświetlający wyniki (Dzień 3)  
+
+   - Prototyp formularza wejściowego (Dzień 1)
+   - Połączenie z AI i wygenerowanie przykładowych fiszek (Dzień 2)
+   - Minimalny interfejs wyświetlający wyniki (Dzień 3)
 
 5. Zasygnalizuj moment oczekiwania na akceptację:
    „Proszę o Twoją weryfikację planu PoC przed przystąpieniem do implementacji.”

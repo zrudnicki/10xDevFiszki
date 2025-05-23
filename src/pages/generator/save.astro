@@ -1,0 +1,51 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { FlashcardSaveForm } from "../../components/generator/FlashcardSaveForm";
+
+// Get the flashcards from session storage
+const flashcards = JSON.parse(sessionStorage.getItem("acceptedFlashcards") || "[]");
+
+if (flashcards.length === 0) {
+  return Astro.redirect("/generator/input");
+}
+
+// Get user's collections for the dropdown
+const supabase = await getSupabaseServerClient(Astro.cookies);
+const { data: { session } } = await supabase.auth.getSession();
+
+if (!session) {
+  return Astro.redirect("/login");
+}
+
+const { data: collections } = await supabase
+  .from("collections")
+  .select("id, name")
+  .eq("user_id", session.user.id)
+  .order("created_at", { ascending: false });
+
+// Get user's categories for the dropdown
+const { data: categories } = await supabase
+  .from("categories")
+  .select("id, name")
+  .eq("user_id", session.user.id)
+  .order("created_at", { ascending: false });
+---
+
+<Layout title="Save Flashcards">
+  <div class="container mx-auto px-4 py-8">
+    <h1 class="text-2xl font-bold mb-6">Save Generated Flashcards</h1>
+    <FlashcardSaveForm 
+      flashcards={flashcards} 
+      collections={collections || []} 
+      categories={categories || []} 
+    />
+  </div>
+</Layout>
+
+<script>
+  // Clear session storage after page load
+  window.addEventListener("load", () => {
+    sessionStorage.removeItem("acceptedFlashcards");
+  });
+</script> 

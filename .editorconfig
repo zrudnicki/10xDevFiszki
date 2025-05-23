@@ -1,12 +1,20 @@
 root = true
 
 [*]
-end_of_line = lf
+end_of_line = auto
 insert_final_newline = true
 charset = utf-8
 indent_style = space
 indent_size = 2
 trim_trailing_whitespace = true
+max_line_length = 100
+
+[*.{js,jsx,ts,tsx,css,scss,json,astro}]
+quote_type = double
+curly_bracket_next_line = false
+spaces_around_operators = true
+spaces_around_brackets = false
 
 [*.md]
-trim_trailing_whitespace = false 
+trim_trailing_whitespace = false
+max_line_length = off

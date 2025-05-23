@@ -12,6 +12,7 @@ export type Category = Database["public"]["Tables"]["categories"]["Row"];
 export type Collection = Database["public"]["Tables"]["collections"]["Row"];
 export type Flashcard = Database["public"]["Tables"]["flashcards"]["Row"];
 export type FlashcardGenerationStats = Database["public"]["Tables"]["flashcard_generation_stats"]["Row"];
+export type FlashcardReview = Database["public"]["Tables"]["flashcard_reviews"]["Row"];
 
 /**
  * Generic response wrapper for paginated results
@@ -171,4 +172,72 @@ export interface FlashcardGenerationStatsDto extends Omit<FlashcardGenerationSta
   total_accepted_edited: number;
   acceptance_rate: number;
   last_generation_at: string | null;
+}
+
+/**
+ * Study Session View Models
+ */
+export interface SessionFlashcardViewModel {
+  id: string;
+  front: string;
+  back: string;
+  collection_id: string | null;
+  category_id: string | null;
+  is_flipped: boolean;
+  review_status: FlashcardReviewStatus | null;
+  collection_name?: string;
+  category_name?: string;
+}
+
+export interface SessionViewState {
+  is_loading: boolean;
+  is_submitting: boolean;
+  is_completed: boolean;
+  is_paused: boolean;
+  current_index: number;
+  flashcards: SessionFlashcardViewModel[];
+  error: string | null;
+  stats: {
+    total: number;
+    learned: number;
+    to_review: number;
+  };
+}
+
+export interface SessionOptions {
+  collection_id?: string;
+  category_id?: string;
+  limit?: number;
+}
+
+/**
+ * Generator View Models
+ */
+export interface GeneratorFlashcardViewModel {
+  id: string;
+  front: string;
+  back: string;
+  status: "pending" | "accepted" | "rejected";
+  was_edited: boolean;
+}
+
+export interface GeneratorViewState {
+  is_loading: boolean;
+  is_submitting: boolean;
+  current_step: "input" | "review" | "summary";
+  flashcards: GeneratorFlashcardViewModel[];
+  error: string | null;
+  stats: {
+    total: number;
+    accepted: number;
+    rejected: number;
+    pending: number;
+  };
+}
+
+export interface GeneratorOptions {
+  collection_id?: string;
+  category_id?: string;
+  new_collection_name?: string;
+  new_category_name?: string;
 }

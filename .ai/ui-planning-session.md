@@ -41,29 +41,34 @@ Architektura UI powinna być oparta na nowoczesnym stacku technologicznym obejmu
 ### Kluczowe widoki, ekrany i przepływy użytkownika
 
 #### Dashboard - główny ekran zawierający:
+
 - Sekcję z ostatnio używanymi kolekcjami
 - Statystyki generowania fiszek (liczba wygenerowanych i zaakceptowanych)
 - Fiszki oczekujące na powtórkę z możliwością szybkiego rozpoczęcia nauki
 
 #### Generator fiszek (oddzielna podstrona) zawierający:
+
 - Textarea do wprowadzania tekstu z licznikiem znaków (1000-10000)
 - Komunikat walidacyjny "Wprowadź tekst (min 1000, max 10000 znaków)"
 - Przycisk "Generuj" (dezaktywowany poza zakresem znaków)
 - Dropdown do wyboru kolekcji i kategorii z funkcją filtrowania
 
 #### Widok recenzji wygenerowanych fiszek:
+
 - Lista wygenerowanych fiszek (front/back)
 - Możliwość edycji każdej fiszki
 - Przyciski "Akceptuj" i "Edytuj" dla każdej fiszki
 - Opcja zbiorczego zapisu zaakceptowanych fiszek
 
 #### Tryb nauki/powtórki (pełnoekranowy):
+
 - Karta z animacją odwracania 3D
 - Informacja o numerze aktualnej fiszki (np. "4/10") i nazwie kolekcji
 - Wizualny pasek postępu z procentowym wskaźnikiem ukończenia
 - Przyciski "Przyswojone" i "Wymaga powtórki"
 
 #### Zarządzanie kolekcjami i kategoriami:
+
 - Lista kolekcji z liczbą fiszek
 - Możliwość edycji, usuwania i dodawania nowych kolekcji/kategorii
 
@@ -72,6 +77,7 @@ Główny przepływ użytkownika powinien być maksymalnie uproszczony: **Dashboa
 ### Strategia integracji z API i zarządzania stanem
 
 #### Integracja z API:
+
 - Wykorzystanie endpointów API określonych w planie API, szczególnie do:
   - Generowania fiszek przez AI (`/api/ai/generate-flashcards`)
   - Akceptacji wygenerowanych fiszek (`/api/ai/flashcards/accept`)
@@ -79,6 +85,7 @@ Główny przepływ użytkownika powinien być maksymalnie uproszczony: **Dashboa
   - Oznaczania fiszek jako przyswojone lub wymagające powtórki
 
 #### Zarządzanie stanem:
+
 - Wykorzystanie Context API z React dla efektywnej synchronizacji z Supabase API
 - Przechowywanie tymczasowych danych generowanych fiszek przed ich zaakceptowaniem
 - Zarządzanie stanem walidacji formularzy i komunikatów
@@ -86,20 +93,24 @@ Główny przepływ użytkownika powinien być maksymalnie uproszczony: **Dashboa
 ### Responsywność, dostępność i bezpieczeństwo
 
 #### Responsywność:
+
 - Wykorzystanie Tailwind oraz komponentów Shadcn/ui dla zapewnienia responsywności
 - Zastosowanie podejścia mobile-first
 
 #### Dostępność:
+
 - Zapewnienie odpowiedniego kontrastu dla czytelności tekstu
 - Przejrzyste komunikaty błędów i walidacji
 
 #### Bezpieczeństwo:
+
 - Wykorzystanie mechanizmów uwierzytelniania Supabase
 - Walidacja danych zgodna z ograniczeniami bazy danych
 
 ### Komponenty UI i wzorce interakcji
 
 #### Komponenty:
+
 - Card i CardContent (Shadcn/ui) dla fiszek
 - Button dla akcji
 - Textarea z licznikiem znaków dla wprowadzania tekstu
@@ -108,6 +119,7 @@ Główny przepływ użytkownika powinien być maksymalnie uproszczony: **Dashboa
 - Toast dla powiadomień i komunikatów
 
 #### Wzorce interakcji:
+
 - Animacja odwracania karty jako podstawowy element interakcji w trybie nauki
 - Filtrowanie dropdown podczas wpisywania dla szybkiego znajdowania opcji
 - System powiadomień (toast messages) w prawym górnym rogu

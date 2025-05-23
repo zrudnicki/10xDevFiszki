@@ -1,340 +1,413 @@
-# Architektura UI dla aplikacji Fiszki
+# Architektura UI dla Fiszki
 
 ## 1. Przegląd struktury UI
 
-Aplikacja Fiszki będzie miała dwupoziomową strukturę nawigacji składającą się z:
+Architektura interfejsu użytkownika aplikacji Fiszki opiera się na modelu wielostronicowym z wyraźnym podziałem na obszary funkcjonalne. Główne obszary to: uwierzytelnianie, pulpit użytkownika, generowanie fiszek przez AI, zarządzanie kolekcjami i kategoriami, proces nauki (spaced repetition) oraz panel ustawień. Aplikacja korzysta z nowoczesnego, responsywnego designu, zapewniającego dostępność na różnych urządzeniach.
 
-1. **Górnego paska nawigacyjnego** - zawierającego główne funkcje aplikacji, takie jak przejście do dashboardu, generator fiszek, tryb nauki oraz menu użytkownika.
-2. **Bocznego sidebara** - zapewniającego dostęp do kolekcji, kategorii i statystyk.
-
-Główny interfejs będzie podzielony na następujące sekcje:
-- Obszar uwierzytelniania (logowanie/rejestracja)
-- Dashboard (ekran główny)
-- Generator fiszek
-- Widok recenzji wygenerowanych fiszek
-- Tryb nauki/powtórki (pełnoekranowy)
-- Zarządzanie kolekcjami i kategoriami
-- Profil użytkownika i ustawienia
-- Statystyki
-
-Interfejs będzie korzystał z komponentów Shadcn/ui i stylowania za pomocą Tailwind CSS, co zapewni spójny wygląd i responsywność na różnych urządzeniach.
+Struktura opiera się na następujących założeniach:
+- Jednolity layout z spójną nawigacją główną
+- Intuicyjny przepływ użytkownika przez kluczowe funkcje
+- Wyraźne rozdzielenie logiki biznesowej od prezentacji
+- Wsparcie dla walidacji danych na poziomie interfejsu
+- Obsługa stanów błędów i ładowania danych
 
 ## 2. Lista widoków
 
-### Widok logowania/rejestracji
-- **Ścieżka**: `/auth`
-- **Główny cel**: Umożliwienie użytkownikom uwierzytelnienia w systemie
-- **Kluczowe informacje**:
-  - Formularze logowania i rejestracji
-  - Odnośnik do resetowania hasła
-- **Kluczowe komponenty**:
-  - Zakładki przełączające między logowaniem a rejestracją
-  - Formularze z walidacją
-  - Przyciski akcji (logowanie, rejestracja)
-- **UX, dostępność i bezpieczeństwo**:
-  - Jasne komunikaty błędów walidacji
-  - Zabezpieczenie CSRF
-  - Wykorzystanie mechanizmów uwierzytelniania Supabase
+### Widoki uwierzytelniania
 
-### Dashboard
-- **Ścieżka**: `/` lub `/dashboard`
-- **Główny cel**: Zapewnienie szybkiego dostępu do kluczowych funkcji i informacji
-- **Kluczowe informacje**:
-  - Ostatnio używane kolekcje
-  - Statystyki generowania fiszek
-  - Fiszki oczekujące na powtórkę
-- **Kluczowe komponenty**:
-  - Karty z ostatnio używanymi kolekcjami
-  - Widżet statystyk generowania
-  - Sekcja fiszek oczekujących na powtórkę z możliwością rozpoczęcia nauki
-  - Przyciski szybkiego dostępu (generowanie, nauka)
-- **UX, dostępność i bezpieczeństwo**:
-  - Responsywny układ z kartami dostosowującymi się do szerokości ekranu
-  - Czytelne etykiety i odpowiedni kontrast kolorów
+#### Strona Logowania
+- **Ścieżka widoku**: `/login`
+- **Główny cel**: Umożliwienie użytkownikowi zalogowania się do aplikacji
+- **Kluczowe informacje**: Formularz logowania, linki do rejestracji i resetowania hasła
+- **Kluczowe komponenty**: 
+  - LoginForm (formularz logowania)
+  - FormErrorDisplay (wyświetlanie błędów walidacji)
+  - SocialLoginOptions (opcje logowania przez media społecznościowe)
+- **UX, dostępność i względy bezpieczeństwa**: 
+  - Walidacja pól w czasie rzeczywistym
+  - Wyraźne komunikaty błędów
+  - Zabezpieczenie przed atakami brute force
+  - Pełna dostępność WCAG 2.1
 
-### Generator fiszek
-- **Ścieżka**: `/generator`
-- **Główny cel**: Umożliwienie generowania fiszek z wprowadzonego tekstu
-- **Kluczowe informacje**:
-  - Pole tekstowe z licznikiem znaków
-  - Instrukcje dotyczące długości tekstu
-  - Wybór kolekcji i kategorii
-- **Kluczowe komponenty**:
-  - Textarea z licznikiem znaków (1000-10000)
-  - Komunikat walidacyjny "Wprowadź tekst (min 1000, max 10000 znaków)"
-  - Dropdowny do wyboru kolekcji i kategorii z możliwością filtrowania
-  - Przycisk "Generuj" (dezaktywowany gdy tekst poza zakresem)
-- **UX, dostępność i bezpieczeństwo**:
-  - Wizualna walidacja długości tekstu
-  - Blokowanie przycisku generowania w przypadku nieprawidłowej długości
-  - Informacja o oczekiwaniu podczas generowania
+#### Strona Rejestracji
+- **Ścieżka widoku**: `/register`
+- **Główny cel**: Umożliwienie nowym użytkownikom założenia konta
+- **Kluczowe informacje**: Formularz rejestracji, regulamin, polityka prywatności
+- **Kluczowe komponenty**: 
+  - RegisterForm (formularz rejestracji)
+  - FormErrorDisplay (wyświetlanie błędów walidacji)
+  - PrivacyTermsConsent (zgoda na warunki korzystania z serwisu)
+- **UX, dostępność i względy bezpieczeństwa**: 
+  - Walidacja złożoności hasła
+  - Potwierdzenie adresu e-mail
+  - Zabezpieczenia reCAPTCHA lub podobne
+  - Informacje o przetwarzaniu danych osobowych (RODO)
 
-### Widok recenzji wygenerowanych fiszek
-- **Ścieżka**: `/review`
-- **Główny cel**: Przegląd, edycja i akceptacja wygenerowanych fiszek
-- **Kluczowe informacje**:
-  - Lista wygenerowanych fiszek (front/back)
-  - Opcje edycji
-  - Status akceptacji
-- **Kluczowe komponenty**:
-  - Lista kart fiszek z podglądem front/back
-  - Przyciski edycji dla każdej fiszki
-  - Przyciski akceptacji/odrzucenia
-  - Przycisk zbiorczego zapisu zaakceptowanych fiszek
-- **UX, dostępność i bezpieczeństwo**:
-  - Możliwość edycji treści w miejscu
-  - Wyraźne oznaczenie statusu akceptacji
-  - Potwierdzenie przed zapisem zbiorczym
+#### Strona Resetowania Hasła
+- **Ścieżka widoku**: `/reset-password`
+- **Główny cel**: Umożliwienie użytkownikowi zresetowania zapomnianego hasła
+- **Kluczowe informacje**: Formularz z polem na adres e-mail, instrukcje resetowania
+- **Kluczowe komponenty**: 
+  - ResetPasswordForm (formularz resetowania hasła)
+  - ConfirmationMessage (potwierdzenie wysłania linku resetującego)
+- **UX, dostępność i względy bezpieczeństwa**: 
+  - Nieujawnianie informacji o istnieniu konta
+  - Limitowanie liczby prób resetowania
+  - Link resetujący z ograniczonym czasem ważności
 
-### Tryb nauki/powtórki
-- **Ścieżka**: `/learn` lub `/learn/:collectionId`
-- **Główny cel**: Nauka i powtórki fiszek w trybie pełnoekranowym
-- **Kluczowe informacje**:
-  - Treść fiszki (front/back)
-  - Informacja o postępie (np. "4/10")
-  - Nazwa kolekcji
-- **Kluczowe komponenty**:
-  - Karta z animacją odwracania 3D
-  - Przyciski "Przyswojone" i "Wymaga powtórki"
-  - Wizualny pasek postępu z procentowym wskaźnikiem
-  - Informacja o bieżącej fiszce i całkowitej liczbie
-  - Przycisk wyjścia z trybu nauki
-- **UX, dostępność i bezpieczeństwo**:
-  - Płynna animacja odwracania karty
-  - Minimalistyczny interfejs bez elementów rozpraszających
-  - Możliwość nawigacji między fiszkami
+### Widoki główne
 
-### Widok kolekcji
-- **Ścieżka**: `/collections`
-- **Główny cel**: Zarządzanie kolekcjami fiszek
-- **Kluczowe informacje**:
-  - Lista kolekcji
-  - Liczba fiszek w każdej kolekcji
-  - Daty utworzenia/modyfikacji
-- **Kluczowe komponenty**:
-  - Lista kolekcji z liczbą fiszek
-  - Przyciski do edycji/usuwania kolekcji
-  - Formularz tworzenia nowej kolekcji
-  - Pole wyszukiwania/filtrowania
-- **UX, dostępność i bezpieczeństwo**:
-  - Potwierdzenie przed usunięciem kolekcji
-  - Sortowanie i filtrowanie listy
-  - Czytelne etykiety i odpowiedni kontrast
+#### Strona Główna (po zalogowaniu)
+- **Ścieżka widoku**: `/dashboard`
+- **Główny cel**: Prezentacja stanu nauki i szybki dostęp do głównych funkcji
+- **Kluczowe informacje**: Statystyki użytkownika, fiszki do powtórki, najnowsze kolekcje
+- **Kluczowe komponenty**: 
+  - DashboardStats (statystyki użytkownika)
+  - DueFlashcardsPreview (lista fiszek oczekujących na powtórkę)
+  - RecentCollections (ostatnio używane kolekcje)
+  - QuickActions (skróty do głównych funkcji)
+- **UX, dostępność i względy bezpieczeństwa**: 
+  - Personalizacja widoku na podstawie historii użytkownika
+  - Wyraźne komunikaty o stanie nauki
+  - Intuicyjne skróty do najczęściej używanych funkcji
 
-### Widok szczegółów kolekcji
-- **Ścieżka**: `/collections/:id`
+#### Profil Użytkownika
+- **Ścieżka widoku**: `/profile`
+- **Główny cel**: Zarządzanie danymi profilu i preferencjami użytkownika
+- **Kluczowe informacje**: Dane użytkownika, opcje preferencji, statystyki ogólne
+- **Kluczowe komponenty**: 
+  - ProfileForm (formularz edycji profilu)
+  - AccountSettings (ustawienia konta)
+  - DeleteAccountButton (przycisk usunięcia konta z potwierdzeniem)
+- **UX, dostępność i względy bezpieczeństwa**: 
+  - Dwustopniowe potwierdzenie usunięcia konta
+  - Jasna informacja o konsekwencjach usunięcia danych
+  - Możliwość eksportu własnych danych
+
+### Widoki generowania fiszek
+
+#### Strona Wprowadzania Tekstu
+- **Ścieżka widoku**: `/generator/input`
+- **Główny cel**: Wprowadzenie tekstu źródłowego do generowania fiszek przez AI
+- **Kluczowe informacje**: Formularz tekstowy, licznik znaków, opcje generowania
+- **Kluczowe komponenty**: 
+  - GeneratorLayout (layout z paskiem postępu)
+  - TextInputForm (formularz wprowadzania tekstu)
+  - TextareaWithCounter (pole tekstowe z licznikiem znaków)
+  - GeneratorOptionsForm (opcje generowania)
+- **UX, dostępność i względy bezpieczeństwa**: 
+  - Walidacja długości tekstu (1000-10000 znaków)
+  - Automatyczny zapis wersji roboczej
+  - Wskaźnik złożoności tekstu
+  - Podpowiedzi dotyczące optymalnej długości
+
+#### Strona Recenzji Fiszek
+- **Ścieżka widoku**: `/generator/review`
+- **Główny cel**: Przegląd i akceptacja wygenerowanych fiszek
+- **Kluczowe informacje**: Lista wygenerowanych fiszek, przyciski akcji (akceptuj/odrzuć/edytuj)
+- **Kluczowe komponenty**: 
+  - GeneratorLayout (layout z paskiem postępu)
+  - FlashcardReviewList (lista wygenerowanych fiszek)
+  - FlashcardReviewItem (pojedyncza fiszka do recenzji)
+  - FlashcardActionButtons (przyciski akcji dla fiszki)
+  - FlashcardEditModal (modal do edycji fiszki)
+- **UX, dostępność i względy bezpieczeństwa**: 
+  - Intuicyjne oznaczenia fiszek (zaakceptowane/odrzucone)
+  - Walidacja limitów znaków przy edycji
+  - Możliwość odwracania kart dla lepszego przeglądu
+  - Wizualne potwierdzenia akcji użytkownika
+
+#### Strona Zapisywania Fiszek
+- **Ścieżka widoku**: `/generator/save`
+- **Główny cel**: Finalizacja procesu generowania i zapisanie zaakceptowanych fiszek
+- **Kluczowe informacje**: Lista zaakceptowanych fiszek, wybór kolekcji/kategorii, przycisk zapisu
+- **Kluczowe komponenty**: 
+  - GeneratorLayout (layout z paskiem postępu)
+  - AcceptedFlashcardsList (lista zaakceptowanych fiszek)
+  - CollectionAssignmentForm (formularz przypisania do kolekcji)
+  - SaveButton (przycisk zapisania fiszek)
+- **UX, dostępność i względy bezpieczeństwa**: 
+  - Podsumowanie procesu generowania
+  - Możliwość zmiany przypisania kolekcji/kategorii dla wszystkich fiszek
+  - Informacja o liczbie zaakceptowanych/odrzuconych fiszek
+  - Potwierdzenie pomyślnego zapisu
+
+### Widoki zarządzania fiszkami
+
+#### Lista Kolekcji
+- **Ścieżka widoku**: `/collections`
+- **Główny cel**: Przeglądanie i zarządzanie kolekcjami fiszek
+- **Kluczowe informacje**: Lista kolekcji, liczba fiszek w każdej kolekcji, daty utworzenia/aktualizacji
+- **Kluczowe komponenty**: 
+  - CollectionsList (lista kolekcji)
+  - CollectionCard (karta pojedynczej kolekcji)
+  - CreateCollectionButton (przycisk tworzenia nowej kolekcji)
+  - SearchFilter (filtrowanie kolekcji)
+- **UX, dostępność i względy bezpieczeństwa**: 
+  - Sortowanie i filtrowanie kolekcji
+  - Podgląd podstawowych informacji o kolekcji
+  - Intuicyjne akcje zarządzania (edycja, usuwanie)
+
+#### Szczegóły Kolekcji
+- **Ścieżka widoku**: `/collections/:id`
 - **Główny cel**: Przeglądanie i zarządzanie fiszkami w konkretnej kolekcji
-- **Kluczowe informacje**:
-  - Nazwa i opis kolekcji
-  - Lista fiszek w kolekcji
-  - Statystyki nauki
-- **Kluczowe komponenty**:
-  - Nagłówek z nazwą kolekcji i statystykami
-  - Lista fiszek z możliwością podglądu front/back
-  - Przyciski edycji/usuwania fiszek
-  - Przycisk dodawania nowej fiszki
-  - Przycisk rozpoczęcia nauki z tej kolekcji
-- **UX, dostępność i bezpieczeństwo**:
-  - Możliwość sortowania i filtrowania fiszek
-  - Potwierdzenie przed usunięciem fiszki
-  - Wskaźnik postępu nauki dla kolekcji
+- **Kluczowe informacje**: Dane kolekcji, lista fiszek, statystyki kolekcji
+- **Kluczowe komponenty**: 
+  - CollectionDetails (szczegóły kolekcji)
+  - FlashcardList (lista fiszek w kolekcji)
+  - CollectionActions (przyciski akcji dla kolekcji)
+  - AddFlashcardButton (przycisk dodawania nowej fiszki)
+- **UX, dostępność i względy bezpieczeństwa**: 
+  - Grupowanie fiszek według kategorii
+  - Możliwość masowej edycji fiszek
+  - Statystyki postępu nauki dla kolekcji
 
-### Widok kategorii
-- **Ścieżka**: `/categories`
-- **Główny cel**: Zarządzanie kategoriami fiszek
-- **Kluczowe informacje**:
-  - Lista kategorii
-  - Liczba fiszek w każdej kategorii
-- **Kluczowe komponenty**:
-  - Lista kategorii z liczbą fiszek
-  - Przyciski do edycji/usuwania kategorii
-  - Formularz tworzenia nowej kategorii
-  - Pole wyszukiwania/filtrowania
-- **UX, dostępność i bezpieczeństwo**:
-  - Potwierdzenie przed usunięciem kategorii
-  - Czytelne etykiety i odpowiedni kontrast
+#### Lista Kategorii
+- **Ścieżka widoku**: `/categories`
+- **Główny cel**: Przeglądanie i zarządzanie kategoriami fiszek
+- **Kluczowe informacje**: Lista kategorii, liczba fiszek w każdej kategorii
+- **Kluczowe komponenty**: 
+  - CategoriesList (lista kategorii)
+  - CategoryCard (karta pojedynczej kategorii)
+  - CreateCategoryButton (przycisk tworzenia nowej kategorii)
+- **UX, dostępność i względy bezpieczeństwa**: 
+  - Możliwość szybkiego filtrowania kategorii
+  - Wizualna reprezentacja wielkości kategorii
+  - Proste zarządzanie (dodawanie, edycja, usuwanie)
 
-### Widok tworzenia/edycji fiszki
-- **Ścieżka**: `/flashcards/new` lub `/flashcards/:id/edit`
-- **Główny cel**: Ręczne tworzenie lub edycja pojedynczej fiszki
-- **Kluczowe informacje**:
-  - Pola front i back
-  - Wybór kolekcji i kategorii
-- **Kluczowe komponenty**:
-  - Formularz z polami Front (do 200 znaków) i Back (do 500 znaków)
-  - Dropdowny do wyboru kolekcji i kategorii
-  - Liczniki znaków dla pól
-  - Przyciski zapisz/anuluj
-- **UX, dostępność i bezpieczeństwo**:
-  - Walidacja długości pól w czasie rzeczywistym
-  - Blokowanie przycisku zapisu dla nieprawidłowych danych
-  - Opcja podglądu karty przed zapisaniem
+#### Szczegóły Kategorii
+- **Ścieżka widoku**: `/categories/:id`
+- **Główny cel**: Przeglądanie i zarządzanie fiszkami w konkretnej kategorii
+- **Kluczowe informacje**: Dane kategorii, lista fiszek, statystyki kategorii
+- **Kluczowe komponenty**: 
+  - CategoryDetails (szczegóły kategorii)
+  - FlashcardList (lista fiszek w kategorii)
+  - CategoryActions (przyciski akcji dla kategorii)
+- **UX, dostępność i względy bezpieczeństwa**: 
+  - Podgląd fiszek z różnych kolekcji w ramach jednej kategorii
+  - Możliwość zmiany kategorii dla wielu fiszek naraz
+  - Statystyki efektywności nauki dla kategorii
 
-### Widok profilu/ustawień
-- **Ścieżka**: `/profile` lub `/settings`
-- **Główny cel**: Zarządzanie profilem użytkownika i ustawieniami
-- **Kluczowe informacje**:
-  - Dane profilu
-  - Opcje ustawień
-  - Zarządzanie kontem
-- **Kluczowe komponenty**:
-  - Formularz z danymi profilu
-  - Formularz zmiany hasła
-  - Sekcja usuwania konta
-  - Ustawienia aplikacji
-- **UX, dostępność i bezpieczeństwo**:
-  - Dwustopniowe potwierdzenie przy usuwaniu konta
-  - Walidacja formularzy
-  - Jasne komunikaty o sukcesie/błędzie
+#### Edycja Fiszki
+- **Ścieżka widoku**: `/flashcards/:id/edit`
+- **Główny cel**: Edycja zawartości istniejącej fiszki
+- **Kluczowe informacje**: Formularz edycji front/back, przypisanie do kolekcji/kategorii
+- **Kluczowe komponenty**: 
+  - FlashcardEditForm (formularz edycji fiszki)
+  - CharacterCounter (licznik znaków dla pól)
+  - CollectionCategorySelector (wybór kolekcji/kategorii)
+- **UX, dostępność i względy bezpieczeństwa**: 
+  - Walidacja limitów znaków (front ≤ 200, back ≤ 500)
+  - Podgląd fiszki w trakcie edycji
+  - Automatyczne zapisywanie szkicu zmian
 
-### Widok statystyk
-- **Ścieżka**: `/stats`
-- **Główny cel**: Prezentacja statystyk generowania i nauki
-- **Kluczowe informacje**:
-  - Liczba wygenerowanych fiszek
-  - Liczba zaakceptowanych fiszek
-  - Procent zaakceptowanych
-  - Statystyki nauki (nauczone vs do powtórki)
-- **Kluczowe komponenty**:
-  - Karty z kluczowymi wskaźnikami
-  - Wykresy pokazujące trendy
-  - Filtrowanie po okresach czasu
-- **UX, dostępność i bezpieczeństwo**:
-  - Czytelne wizualizacje danych
-  - Alternatywne przedstawienie danych dla osób z niepełnosprawnościami
-  - Wyraźnie oznaczone osie i legendy wykresów
+### Widoki nauki
+
+#### Sesja Nauki
+- **Ścieżka widoku**: `/study`
+- **Główny cel**: Przeglądanie fiszek do nauki zgodnie z algorytmem spaced repetition
+- **Kluczowe informacje**: Aktualna fiszka, przyciski oznaczania statusu przyswojenia
+- **Kluczowe komponenty**: 
+  - StudySession (kontener sesji nauki)
+  - FlashcardDisplay (wyświetlanie aktualnej fiszki)
+  - FlashcardControls (przyciski kontroli nauki)
+  - SessionProgress (pasek postępu sesji)
+- **UX, dostępność i względy bezpieczeństwa**: 
+  - Intuicyjne odwracanie karty (front/back)
+  - Klawisze skrótu dla szybkiej interakcji
+  - Wskaźnik postępu sesji nauki
+  - Możliwość pauzy i kontynuacji sesji
+
+#### Statystyki Nauki
+- **Ścieżka widoku**: `/stats`
+- **Główny cel**: Prezentacja postępów nauki i statystyk generowania fiszek
+- **Kluczowe informacje**: Wykresy postępu, statystyki efektywności, trendy nauki
+- **Kluczowe komponenty**: 
+  - LearningStats (statystyki nauki)
+  - GenerationStats (statystyki generowania fiszek przez AI)
+  - ProgressCharts (wykresy postępu)
+  - EfficiencyMetrics (metryki efektywności)
+- **UX, dostępność i względy bezpieczeństwa**: 
+  - Dostosowane wykresy dla różnych metryk
+  - Możliwość filtrowania danych według okresu
+  - Eksport statystyk do CSV/PDF
 
 ## 3. Mapa podróży użytkownika
 
 ### Główny przepływ użytkownika
 
-1. **Rejestracja i pierwsze logowanie**
-   - Użytkownik rejestruje się → loguje się → trafia na Dashboard
-   - Dashboard zawiera wprowadzenie dla nowych użytkowników
+1. **Rejestracja i logowanie**
+   - Użytkownik odwiedza stronę główną
+   - Wybiera opcję rejestracji
+   - Wypełnia formularz rejestracyjny
+   - Potwierdza adres email (opcjonalnie)
+   - Loguje się do aplikacji
 
-2. **Generowanie fiszek**
-   - Dashboard → Kliknięcie "Generuj fiszki" → Widok generatora
-   - Wprowadzenie tekstu, wybór kolekcji/kategorii → Kliknięcie "Generuj"
-   - Oczekiwanie na generowanie → Widok recenzji wygenerowanych fiszek
-   - Przegląd, edycja fiszek → Akceptacja wybranych → Zapisanie
+2. **Pierwsza wizyta po zalogowaniu**
+   - Użytkownik trafia na dashboard
+   - Otrzymuje krótki samouczek prezentujący główne funkcje
+   - Zachęcany jest do utworzenia pierwszej kolekcji lub wygenerowania fiszek
 
-3. **Nauka i powtórki**
-   - Dashboard → Kliknięcie "Rozpocznij naukę" lub wybór konkretnej kolekcji
-   - Tryb nauki/powtórki → Przeglądanie fiszek, oznaczanie jako przyswojone/do powtórki
-   - Zakończenie sesji → Powrót do Dashboard z podsumowaniem
+3. **Generowanie fiszek przez AI**
+   - Użytkownik wybiera opcję generowania fiszek
+   - Wprowadza tekst źródłowy (1000-10000 znaków)
+   - Wybiera kolekcję/kategorię lub tworzy nowe
+   - Inicjuje proces generowania
+   - Otrzymuje listę wygenerowanych fiszek do recenzji
+   - Oznacza fiszki jako zaakceptowane, odrzucone lub do edycji
+   - Zapisuje zaakceptowane fiszki do kolekcji
 
-4. **Zarządzanie kolekcjami**
-   - Dashboard → Sidebar "Kolekcje" → Widok kolekcji
-   - Przeglądanie/tworzenie/edycja/usuwanie kolekcji
-   - Kliknięcie na kolekcję → Widok szczegółów kolekcji
-   - Zarządzanie fiszkami w kolekcji
+4. **Sesja nauki**
+   - Użytkownik wybiera opcję nauki
+   - System prezentuje fiszki według algorytmu spaced repetition
+   - Użytkownik przegląda fiszki, odwraca je i oznacza jako przyswojone lub wymagające powtórki
+   - Po zakończeniu sesji prezentowane jest podsumowanie
 
-5. **Ręczne tworzenie fiszek**
-   - Widok szczegółów kolekcji → Kliknięcie "Dodaj fiszkę" → Formularz nowej fiszki
-   - Wypełnienie pól → Zapisanie → Powrót do widoku kolekcji
+5. **Zarządzanie kolekcjami i fiszkami**
+   - Użytkownik przegląda swoje kolekcje
+   - Może tworzyć nowe kolekcje/kategorie
+   - Może przeglądać, edytować i usuwać fiszki
+   - Może przenosić fiszki między kolekcjami
 
-6. **Przeglądanie statystyk**
-   - Dashboard → Sidebar "Statystyki" → Widok statystyk
-   - Przeglądanie różnych wskaźników i wykresów
+6. **Śledzenie postępów**
+   - Użytkownik regularnie przegląda statystyki nauki
+   - Obserwuje efektywność generowania fiszek przez AI
+   - Dostosowuje swoje podejście do nauki na podstawie statystyk
 
-### Przypadki szczególne
+### Kluczowy przypadek użycia: Generowanie i nauka z fiszkami
 
-1. **Użytkownik bez kolekcji**
-   - Po pierwszym logowaniu → Dashboard z zachętą do utworzenia kolekcji
-   - Kliknięcie "Utwórz pierwszą kolekcję" → Formularz nowej kolekcji
-
-2. **Błąd generowania fiszek**
-   - Widok generatora → Kliknięcie "Generuj" → Błąd API
-   - Wyświetlenie komunikatu błędu → Opcja ponownej próby
-
-3. **Usuwanie konta**
-   - Widok profilu → Kliknięcie "Usuń konto" → Modal potwierdzenia
-   - Potwierdzenie → Druga weryfikacja → Wylogowanie i usunięcie danych
+1. Użytkownik wybiera opcję "Generuj fiszki" z dashboardu
+2. Wprowadza tekst źródłowy do pola tekstowego, obserwując licznik znaków
+3. System waliduje długość tekstu (1000-10000 znaków)
+4. Użytkownik wybiera istniejącą kolekcję lub tworzy nową
+5. Klika przycisk "Generuj"
+6. System przetwarza tekst i generuje 5-15 fiszek
+7. Użytkownik jest przekierowany do ekranu recenzji
+8. Dla każdej fiszki użytkownik:
+   - Przegląda front i back (odwracając kartę)
+   - Akceptuje fiszkę, odrzuca ją lub edytuje
+   - W przypadku edycji, modyfikuje treść z walidacją limitów znaków
+9. Po przeglądzie wszystkich fiszek klika "Dalej"
+10. Na ekranie zapisywania:
+    - Widzi podsumowanie zaakceptowanych fiszek
+    - Może zmienić kolekcję/kategorię dla wszystkich fiszek
+    - Zatwierdza i zapisuje fiszki klikając "Zapisz"
+11. System potwierdza zapisanie fiszek i aktualizuje statystyki
+12. Użytkownik jest przekierowany do widoku szczegółów kolekcji
+13. Może od razu rozpocząć sesję nauki z nowymi fiszkami
 
 ## 4. Układ i struktura nawigacji
 
-### Górny pasek nawigacyjny
-- **Lewa strona**:
-  - Logo/Nazwa aplikacji (link do Dashboard)
-- **Środek**:
-  - Przycisk "Generuj fiszki" (link do generatora)
-  - Przycisk "Rozpocznij naukę" (link do wyboru kolekcji do nauki)
-- **Prawa strona**:
-  - Menu użytkownika (avatar/imię)
-    - Profil/Ustawienia
-    - Wylogowanie
+### Nawigacja główna
 
-### Boczny sidebar
-- Dashboard (Home)
+Nawigacja główna jest stale widoczna na górze ekranu (w formie poziomego menu na dużych ekranach lub menu hamburgerowego na małych) i zawiera następujące elementy:
+
+- Logo (przekierowanie na dashboard)
+- Dashboard
 - Kolekcje
-- Kategorie
+- Generuj fiszki
+- Ucz się
 - Statystyki
-- Fiszki oczekujące na powtórkę (z licznikiem)
+- Profil użytkownika (menu rozwijane z opcjami)
+  - Mój profil
+  - Ustawienia
+  - Wyloguj się
 
 ### Nawigacja kontekstowa
-- **W widoku kolekcji**:
-  - Breadcrumbs (Dashboard > Kolekcje)
-  - Przyciski Dodaj/Sortuj/Filtruj
-- **W widoku szczegółów kolekcji**:
-  - Breadcrumbs (Dashboard > Kolekcje > Nazwa kolekcji)
-  - Przyciski Dodaj fiszkę/Edytuj kolekcję/Rozpocznij naukę
-- **W trybie nauki**:
-  - Przycisk wyjścia
-  - Przyciski nawigacji między fiszkami
 
-### Responsywność
-- Na urządzeniach mobilnych sidebar chowa się i jest dostępny przez przycisk menu
-- Górny pasek upraszcza się na małych ekranach
-- Karty i listy układają się wertykalnie na wąskich ekranach
+W zależności od aktualnego widoku, pod nawigacją główną może pojawić się nawigacja kontekstowa:
+
+- **W widoku kolekcji**: przyciski tworzenia nowej kolekcji, filtrowania, sortowania
+- **W szczegółach kolekcji**: zakładki (Wszystkie fiszki, Do nauki, Przyswojone)
+- **W procesie generowania**: pasek postępu z krokami (Wprowadzanie tekstu → Recenzja → Zapisanie)
+- **W sesji nauki**: licznik fiszek, pozostały czas, opcje sesji
+
+### Ścieżki nawigacyjne
+
+System wykorzystuje "breadcrumbs" dla głębszych poziomów nawigacji, np.:
+- Dashboard > Kolekcje > [Nazwa kolekcji] > Edytuj fiszkę
+- Dashboard > Generuj fiszki > Recenzja
+
+### Nawigacja mobilna
+
+W wersji mobilnej:
+- Menu główne zwijane jest do ikony hamburgerowej
+- Zastosowano większe przyciski akcji dla łatwiejszej interakcji dotykowej
+- Uproszczono niektóre widoki dla lepszego dopasowania do mniejszych ekranów
 
 ## 5. Kluczowe komponenty
 
-### Card
-- Wykorzystanie: Fiszki, kolekcje, widżety na dashboardzie
-- Opis: Komponent Shadcn/ui z możliwością dodania tytułu, zawartości i akcji
-- Warianty: Standardowy, interaktywny (z animacją)
+### Komponenty nawigacyjne
 
-### Button
-- Wykorzystanie: Akcje w całej aplikacji
-- Opis: Komponent Shadcn/ui z różnymi wariantami i stanami
-- Warianty: Primary, Secondary, Outline, Destructive, Disabled
+#### MainNavbar
+- Główny pasek nawigacji aplikacji
+- Zawiera logo, linki nawigacyjne i menu użytkownika
+- Dostosowuje się do różnych rozmiarów ekranu
 
-### Textarea
-- Wykorzystanie: Generator fiszek, edycja fiszek
-- Opis: Pole tekstowe z licznikiem znaków i walidacją
-- Dodatkowe funkcje: Automatyczna zmiana rozmiaru, podświetlanie błędów
+#### BreadcrumbTrail
+- Wyświetla ścieżkę nawigacyjną
+- Umożliwia szybki powrót do poprzednich poziomów
 
-### Select/Dropdown
-- Wykorzystanie: Wybór kolekcji/kategorii
-- Opis: Komponent Shadcn/ui z możliwością wyszukiwania i filtrowania
-- Dodatkowe funkcje: Filtrowanie w czasie wpisywania
+#### ProgressStepper
+- Prezentuje etapy procesu wielokrokowego
+- Wskazuje aktualny krok i umożliwia nawigację między krokami
 
-### Progress
-- Wykorzystanie: Pasek postępu w trybie nauki
-- Opis: Wizualny wskaźnik postępu z wartością procentową
-- Warianty: Standard, Success (zielony), Warning (żółty)
+### Komponenty fiszek
 
-### Toast
-- Wykorzystanie: Powiadomienia o sukcesie/błędzie
-- Opis: Komunikaty pojawiające się w prawym górnym rogu
-- Warianty: Success, Error, Warning, Info
+#### FlashcardCard
+- Podstawowy komponent wyświetlający fiszkę
+- Obsługuje odwracanie między front i back
+- Skaluje się responsywnie do różnych rozmiarów ekranu
 
-### FlashCard
-- Wykorzystanie: Reprezentacja fiszki w trybie nauki
-- Opis: Niestandardowy komponent z animacją odwracania 3D
-- Funkcje: Pokazywanie front/back, animacja odwracania
+#### FlashcardList
+- Wyświetla listę fiszek w formie siatki lub listy
+- Umożliwia sortowanie i filtrowanie
+- Obsługuje paginację dla dużych zbiorów
 
-### Modal
-- Wykorzystanie: Potwierdzenia, formularze
-- Opis: Komponent Shadcn/ui do wyświetlania zawartości na pierwszym planie
-- Warianty: Standardowy, z formularzem, potwierdzenie
+#### FlashcardEditor
+- Formularz do tworzenia i edycji fiszek
+- Zawiera walidację limitów znaków
+- Obsługuje przypisywanie do kolekcji i kategorii
 
-### Form
-- Wykorzystanie: Logowanie, rejestracja, tworzenie/edycja zasobów
-- Opis: Zestaw komponentów Shadcn/ui do budowy formularzy z walidacją
-- Funkcje: Walidacja w czasie rzeczywistym, obsługa błędów, stany loading
+### Komponenty formularzy
 
-### ProgressRing
-- Wykorzystanie: Statystyki, wskaźniki procentowe
-- Opis: Okrągły wskaźnik postępu z wartością wewnątrz
-- Warianty: Różne rozmiary i kolory
+#### TextareaWithCounter
+- Pole tekstowe z licznikiem znaków
+- Waliduje wprowadzony tekst względem limitów
+- Wizualnie sygnalizuje przekroczenie limitów
+
+#### CollectionSelect
+- Dropdown do wyboru kolekcji
+- Umożliwia wyszukiwanie i tworzenie nowej kolekcji
+
+#### CategorySelect
+- Dropdown do wyboru kategorii
+- Umożliwia wyszukiwanie i tworzenie nowej kategorii
+
+### Komponenty informacyjne
+
+#### StatisticsCard
+- Wyświetla kluczowe metryki w formie karty
+- Może zawierać mini-wykresy i wskaźniki
+
+#### NotificationAlert
+- Wyświetla powiadomienia systemowe
+- Różne typy: sukces, błąd, informacja, ostrzeżenie
+
+#### EmptyState
+- Wyświetla informację i sugestie, gdy lista jest pusta
+- Zachęca do działania (np. "Utwórz pierwszą fiszkę")
+
+### Komponenty akcji
+
+#### ActionButton
+- Podstawowy przycisk z możliwością różnych stanów
+- Warianty: primary, secondary, danger, success
+
+#### ConfirmationModal
+- Modal wymagający potwierdzenia akcji
+- Wyjaśnia konsekwencje akcji i wymaga świadomej decyzji
+
+#### LoadingSpinner
+- Indicator ładowania dla procesów asynchronicznych
+- Różne rozmiary i style dla różnych kontekstów 

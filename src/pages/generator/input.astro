@@ -1,0 +1,295 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getSupabaseServerClient } from "@/lib/supabase/server";
+
+// Check authentication
+const supabase = await getSupabaseServerClient(Astro.cookies);
+const { data: { session } } = await supabase.auth.getSession();
+
+// If not authenticated, redirect to login
+if (!session) {
+  return Astro.redirect('/login?redirect=/generator/input');
+}
+
+// Handle form submission
+let error = "";
+let isLoading = false;
+
+// Get available collections for the dropdown
+const { data: collections, error: collectionsError } = await supabase
+  .from('collections')
+  .select('*')
+  .eq('user_id', session.user.id);
+
+// Get available categories for the dropdown
+const { data: categories, error: categoriesError } = await supabase
+  .from('categories')
+  .select('*')
+  .eq('user_id', session.user.id);
+---
+
+<Layout title="Generuj fiszki z tekstu - 10xDevs Fiszki">
+  <div class="container py-8 max-w-4xl mx-auto">
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold mb-2">Wygeneruj fiszki za pomocą AI</h1>
+      <p class="text-muted-foreground">
+        Wprowadź tekst źródłowy (1000-10000 znaków), a SI utworzy fiszki z najważniejszymi informacjami.
+      </p>
+    </div>
+
+    <!-- Generator progress steps -->
+    <div class="mb-8">
+      <ol class="flex items-center w-full">
+        <li class="flex w-full items-center text-blue-600 after:content-[''] after:w-full after:h-1 after:border-b after:border-blue-100 after:border-4 after:inline-block">
+          <span class="flex items-center justify-center w-10 h-10 bg-blue-100 rounded-full lg:h-12 lg:w-12 shrink-0">
+            <span class="text-blue-800 font-bold">1</span>
+          </span>
+        </li>
+        <li class="flex w-full items-center after:content-[''] after:w-full after:h-1 after:border-b after:border-gray-100 after:border-4 after:inline-block">
+          <span class="flex items-center justify-center w-10 h-10 bg-gray-100 rounded-full lg:h-12 lg:w-12 shrink-0">
+            <span class="text-gray-500">2</span>
+          </span>
+        </li>
+        <li class="flex items-center">
+          <span class="flex items-center justify-center w-10 h-10 bg-gray-100 rounded-full lg:h-12 lg:w-12 shrink-0">
+            <span class="text-gray-500">3</span>
+          </span>
+        </li>
+      </ol>
+      <div class="flex justify-between mt-2 text-sm">
+        <span class="font-medium text-blue-600">Wprowadź tekst</span>
+        <span class="text-gray-500">Przejrzyj fiszki</span>
+        <span class="text-gray-500">Zapisz</span>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-md p-6 border">
+      <form id="generatorForm" class="space-y-6">
+        <!-- Text area for input -->
+        <div class="space-y-2">
+          <label for="sourceText" class="block text-sm font-medium">Tekst źródłowy</label>
+          <div class="relative">
+            <textarea
+              id="sourceText"
+              name="sourceText"
+              rows="10"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent resize-y"
+              placeholder="Wprowadź tekst, z którego chcesz wygenerować fiszki (minimum 1000 znaków)..."
+              minlength="1000"
+              maxlength="10000"
+              required
+            ></textarea>
+            <div id="charCount" class="absolute bottom-2 right-2 text-xs text-gray-500">
+              0/10000
+            </div>
+          </div>
+          <p class="text-xs text-muted-foreground">
+            Najlepsze wyniki otrzymasz wprowadzając spójny tekst edukacyjny o długości 1000-10000 znaków.
+          </p>
+        </div>
+
+        <!-- Collection/Category selection -->
+        <div class="space-y-2">
+          <label for="collection" class="block text-sm font-medium">Kolekcja</label>
+          <select
+            id="collection"
+            name="collection_id"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+            required
+          >
+            <option value="">Wybierz kolekcję...</option>
+            {collections?.map((collection) => (
+              <option value={collection.id}>{collection.name}</option>
+            ))}
+            <option value="new">+ Utwórz nową kolekcję</option>
+          </select>
+        </div>
+
+        <div class="space-y-2" id="newCollectionContainer" style="display: none;">
+          <label for="newCollection" class="block text-sm font-medium">Nazwa nowej kolekcji</label>
+          <input
+            type="text"
+            id="newCollection"
+            name="new_collection"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+            placeholder="Wprowadź nazwę nowej kolekcji..."
+          />
+        </div>
+
+        <div class="space-y-2">
+          <label for="category" class="block text-sm font-medium">Kategoria (opcjonalnie)</label>
+          <select
+            id="category"
+            name="category_id"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+          >
+            <option value="">Wybierz kategorię (opcjonalnie)...</option>
+            {categories?.map((category) => (
+              <option value={category.id}>{category.name}</option>
+            ))}
+            <option value="new">+ Utwórz nową kategorię</option>
+          </select>
+        </div>
+
+        <div class="space-y-2" id="newCategoryContainer" style="display: none;">
+          <label for="newCategory" class="block text-sm font-medium">Nazwa nowej kategorii</label>
+          <input
+            type="text"
+            id="newCategory"
+            name="new_category"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+            placeholder="Wprowadź nazwę nowej kategorii..."
+          />
+        </div>
+
+        <!-- Error message -->
+        <div id="errorMessage" class="bg-red-100 text-red-800 p-3 rounded-md border border-red-300 hidden"></div>
+
+        <!-- Submit button -->
+        <button
+          type="submit"
+          id="generateButton"
+          class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
+        >
+          <span>Generuj fiszki</span>
+        </button>
+
+        <!-- Loading spinner (hidden by default) -->
+        <div id="loadingSpinner" class="flex-col items-center justify-center py-4 hidden">
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p class="text-center text-blue-600 mt-4">Generowanie fiszek... (może potrwać do 30 sekund)</p>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Character counter for textarea
+    const sourceText = document.getElementById('sourceText');
+    const charCount = document.getElementById('charCount');
+    const generateButton = document.getElementById('generateButton');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const errorMessage = document.getElementById('errorMessage');
+    const generatorForm = document.getElementById('generatorForm');
+    const collectionSelect = document.getElementById('collection');
+    const categorySelect = document.getElementById('category');
+    const newCollectionContainer = document.getElementById('newCollectionContainer');
+    const newCategoryContainer = document.getElementById('newCategoryContainer');
+
+    // Update character count
+    sourceText.addEventListener('input', () => {
+      const length = sourceText.value.length;
+      charCount.textContent = `${length}/10000`;
+      
+      if (length < 1000) {
+        charCount.classList.add('text-red-500');
+        charCount.classList.remove('text-gray-500');
+      } else {
+        charCount.classList.remove('text-red-500');
+        charCount.classList.add('text-gray-500');
+      }
+    });
+
+    // Show/hide new collection input
+    collectionSelect.addEventListener('change', () => {
+      if (collectionSelect.value === 'new') {
+        // Redirect to new collection page with return URL
+        window.location.href = '/collections/new?redirect=/generator/input';
+      } else {
+        newCollectionContainer.style.display = 'none';
+      }
+    });
+
+    // Show/hide new category input
+    categorySelect.addEventListener('change', () => {
+      if (categorySelect.value === 'new') {
+        newCategoryContainer.style.display = 'block';
+      } else {
+        newCategoryContainer.style.display = 'none';
+      }
+    });
+
+    // Handle form submission
+    generatorForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      
+      // Validate text length
+      if (sourceText.value.length < 1000) {
+        errorMessage.textContent = 'Tekst musi zawierać co najmniej 1000 znaków.';
+        errorMessage.classList.remove('hidden');
+        return;
+      }
+
+      // Validate collection
+      if (collectionSelect.value === '') {
+        errorMessage.textContent = 'Wybierz kolekcję lub utwórz nową.';
+        errorMessage.classList.remove('hidden');
+        return;
+      }
+
+      // Validate new collection name if needed
+      if (collectionSelect.value === 'new' && document.getElementById('newCollection').value.trim() === '') {
+        errorMessage.textContent = 'Wprowadź nazwę nowej kolekcji.';
+        errorMessage.classList.remove('hidden');
+        return;
+      }
+
+      // Validate new category name if needed
+      if (categorySelect.value === 'new' && document.getElementById('newCategory').value.trim() === '') {
+        errorMessage.textContent = 'Wprowadź nazwę nowej kategorii.';
+        errorMessage.classList.remove('hidden');
+        return;
+      }
+
+      // Show loading spinner, hide button
+      generateButton.classList.add('hidden');
+      loadingSpinner.classList.remove('hidden');
+      errorMessage.classList.add('hidden');
+
+      try {
+        // Prepare data for API request
+        const formData = new FormData(generatorForm);
+        const requestData = {
+          text: formData.get('sourceText'),
+          collection_id: formData.get('collection_id') === 'new' ? null : formData.get('collection_id'),
+          category_id: formData.get('category_id') === 'new' ? null : formData.get('category_id'),
+          new_collection: formData.get('collection_id') === 'new' ? formData.get('new_collection') : null,
+          new_category: formData.get('category_id') === 'new' ? formData.get('new_category') : null
+        };
+
+        // Call API to generate flashcards
+        const response = await fetch('/api/ai/generate-flashcards', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestData),
+          credentials: 'include'
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.details || 'Wystąpił błąd podczas generowania fiszek.');
+        }
+
+        // Get response data
+        const data = await response.json();
+        
+        // Save generated flashcards in session storage for review page
+        sessionStorage.setItem('generatedFlashcards', JSON.stringify(data.data));
+        sessionStorage.setItem('generatorRequestData', JSON.stringify(requestData));
+        
+        // Redirect to review page
+        window.location.href = '/generator/review';
+      } catch (error) {
+        // Show error message
+        errorMessage.textContent = error.message || 'Wystąpił nieoczekiwany błąd.';
+        errorMessage.classList.remove('hidden');
+        
+        // Hide loading spinner, show button
+        generateButton.classList.remove('hidden');
+        loadingSpinner.classList.add('hidden');
+      }
+    });
+  </script>
+</Layout> 

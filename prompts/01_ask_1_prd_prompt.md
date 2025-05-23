@@ -1,10 +1,13 @@
 Jesteś doświadczonym menedżerem produktu, którego zadaniem jest stworzenie kompleksowego dokumentu wymagań produktu (PRD) w oparciu o poniższe opisy:
 
 <project_description>
+
 ### Główny problem
+
 Manualne tworzenie wysokiej jakości fiszek edukacyjnych jest czasochłonne, co zniechęca do korzystania z efektywnej metody nauki jaką jest spaced repetition.
 
 ### Najmniejszy zestaw funkcjonalności
+
 - Generowanie fiszek przez AI na podstawie wprowadzonego tekstu (kopiuj-wklej)
 - Manualne tworzenie fiszek
 - Przeglądanie, edycja i usuwanie fiszek
@@ -12,6 +15,7 @@ Manualne tworzenie wysokiej jakości fiszek edukacyjnych jest czasochłonne, co 
 - Integracja fiszek z gotowym algorytmem powtórek
 
 ### Co NIE wchodzi w zakres MVP
+
 - Własny, zaawansowany algorytm powtórek (jak SuperMemo, Anki)
 - Import wielu formatów (PDF, DOCX, itp.)
 - Współdzielenie zestawów fiszek między użytkownikami
@@ -19,28 +23,30 @@ Manualne tworzenie wysokiej jakości fiszek edukacyjnych jest czasochłonne, co 
 - Aplikacje mobilne (na początek tylko web)
 
 ### Kryteria sukcesu
+
 - 75% fiszek wygenerowanych przez AI jest akceptowane przez użytkownika
 - Użytkownicy tworzą 75% fiszek z wykorzystaniem AI
-</project_description>
+  </project_description>
 
 <project_details>
 <conversation_summary>
-<decisions>
-0. Program ma rozwiązać następujący problem: Manualne tworzenie wysokiej jakości fiszek edukacyjnych jest czasochłonne, co zniechęca do korzystania z efektywnej metody nauki jaką jest spaced repetition.
+<decisions> 0. Program ma rozwiązać następujący problem: Manualne tworzenie wysokiej jakości fiszek edukacyjnych jest czasochłonne, co zniechęca do korzystania z efektywnej metody nauki jaką jest spaced repetition.
+
 1. Projekt koncentruje się na uproszczonym MVP umożliwiającym generowanie fiszek przez AI oraz ręczne tworzenie i edycję fiszek z dwoma polami: przód (do 200 znaków) i tył (do 500 znaków).
 2. Proces recenzji fiszek generowanych przez AI ma przebiegać synchronicznie – użytkownik przegląda kandydatów, a następnie za pomocą przycisków "zaakceptuj", "edytuj" lub "odrzuć" bulk zapisuje swoje decyzje, co powoduje zapis zaakceptowanych fiszek do bazy danych.
 3. Walidacja danych będzie przeprowadzana na trzech poziomach: frontend, backend oraz baza danych, a tekst wejściowy do generowania fiszek musi mieścić się w zakresie od 1000 do 10 000 znaków.
 4. W MVP nie przewiduje się rozbudowanej edycji fiszek – użytkownik może jedynie edytować istniejące pole "przód" i "tył", bez możliwości dodawania nowych pól.
 5. System kont użytkowników pozostaje prosty, ze szczególnym uwzględnieniem mechanizmu usuwania kont, a integracja z algorytmem powtórek oparta jest na bibliotece open-source.
-</decisions>
+   </decisions>
 
 <matched_recommendations>
+
 1. Dokładne zmapowanie user journey – od wprowadzenia tekstu wejściowego, przez generowanie kandydatów, aż po recenzję i zapisanie zaakceptowanych fiszek.
 2. Implementacja automatycznej walidacji danych na poziomie frontendu, backendu i bazy danych, z uwzględnieniem ograniczeń znaków dla pól fiszek oraz tekstu wejściowego.
 3. Prototypowanie interfejsu użytkownika, który łączy generowanie fiszek przez AI i ręczne tworzenie/edycję, zachowując spójność i prostotę korzystania.
 4. Przygotowanie dokumentacji integracji z biblioteką gotoeym i ustalenie parametrów technicznych tej integracji.
 5. Zapewnienie odpowiednich mechanizmów bezpieczeństwa oraz testów end-to-end dla wszystkich krytycznych komponentów MVP.
-</matched_recommendations>
+   </matched_recommendations>
 
 <prd_planning_summary>
 Produkt ma na celu rozwiązanie problemów związanych z ręcznym tworzeniem fiszek edukacyjnych poprzez umożliwienie generowania ich przez AI oraz udostępnienie prostego interfejsu do ręcznego tworzenia i edycji fiszek. Główne wymagania funkcjonalne obejmują:
@@ -57,11 +63,12 @@ Kryteria sukcesu obejmują m.in. akceptację przez użytkowników przynajmniej 7
 </prd_planning_summary>
 
 <unresolved_issues>
+
 1. Szczegóły dotyczące mechanizmu potwierdzenia usuwania kont oraz ewentualnej archiwizacji danych przed usunięciem pozostają do doprecyzowania.
 2. Dalsze ustalenia dotyczące potencjalnych wymagań w zakresie bezpieczeństwa danych przechowywanych w formacie tekstowym.
-</unresolved_issues>
-</conversation_summary>
-</project_details>
+   </unresolved_issues>
+   </conversation_summary>
+   </project_details>
 
 Wykonaj następujące kroki, aby stworzyć kompleksowy i dobrze zorganizowany dokument:
 
@@ -74,6 +81,7 @@ Wykonaj następujące kroki, aby stworzyć kompleksowy i dobrze zorganizowany do
    f. Metryki sukcesu
 
 2. W każdej sekcji należy podać szczegółowe i istotne informacje w oparciu o opis projektu i odpowiedzi na pytania wyjaśniające. Upewnij się, że:
+
    - Używasz jasnego i zwięzłego języka
    - W razie potrzeby podajesz konkretne szczegóły i dane
    - Zachowujesz spójność w całym dokumencie
@@ -87,12 +95,14 @@ Wykonaj następujące kroki, aby stworzyć kompleksowy i dobrze zorganizowany do
    - Upewnij się, że każda historia użytkownika jest testowalna.
 
 Użyj następującej struktury dla każdej historii użytkownika:
+
 - ID
 - Tytuł
 - Opis
 - Kryteria akceptacji
 
 4. Po ukończeniu PRD przejrzyj go pod kątem tej listy kontrolnej:
+
    - Czy każdą historię użytkownika można przetestować?
    - Czy kryteria akceptacji są jasne i konkretne?
    - Czy mamy wystarczająco dużo historyjek użytkownika, aby zbudować w pełni funkcjonalną aplikację?
@@ -100,7 +110,7 @@ Użyj następującej struktury dla każdej historii użytkownika:
 
 5. Formatowanie PRD:
    - Zachowaj spójne formatowanie i numerację.
-   - Nie używaj pogrubionego formatowania w markdown ( ** ).
+   - Nie używaj pogrubionego formatowania w markdown ( \*\* ).
    - Wymień WSZYSTKIE historyjki użytkownika.
    - Sformatuj PRD w poprawnym markdown.
 
@@ -108,11 +118,17 @@ Przygotuj PRD z następującą strukturą:
 
 ```markdown
 # Dokument wymagań produktu (PRD) - {{app-name}}
+
 ## 1. Przegląd produktu
+
 ## 2. Problem użytkownika
+
 ## 3. Wymagania funkcjonalne
+
 ## 4. Granice produktu
+
 ## 5. Historyjki użytkowników
+
 ## 6. Metryki sukcesu
 ```
 

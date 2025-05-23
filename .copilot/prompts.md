@@ -20,4 +20,5 @@
 ```
 
 ```js
-// Generate a Jest test for the addUser function 
+// Generate a Jest test for the addUser function
+```

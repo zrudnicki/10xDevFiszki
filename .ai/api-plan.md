@@ -14,14 +14,14 @@
 
 Authentication is handled by Supabase Auth. The following endpoints are provided through Supabase's authentication service:
 
-| Method | Path                    | Description                                      |
-|--------|-------------------------|--------------------------------------------------|
-| POST   | `/auth/signup`          | Register a new user                              |
-| POST   | `/auth/signin`          | Sign in a user                                   |
-| POST   | `/auth/signout`         | Sign out a user                                  |
-| POST   | `/auth/reset-password`  | Request a password reset                         |
-| GET    | `/auth/user`            | Get the current authenticated user               |
-| DELETE | `/auth/user`            | Delete the user's account                        |
+| Method | Path                   | Description                        |
+| ------ | ---------------------- | ---------------------------------- |
+| POST   | `/auth/signup`         | Register a new user                |
+| POST   | `/auth/signin`         | Sign in a user                     |
+| POST   | `/auth/signout`        | Sign out a user                    |
+| POST   | `/auth/reset-password` | Request a password reset           |
+| GET    | `/auth/user`           | Get the current authenticated user |
+| DELETE | `/auth/user`           | Delete the user's account          |
 
 ### Collections
 
@@ -581,7 +581,7 @@ Authentication is handled by Supabase Auth. The following endpoints are provided
     ]
   }
   ```
-- **Implementation Notes**: 
+- **Implementation Notes**:
   - Unique UUIDs are generated on the server for each flashcard
   - These UUIDs are temporary until flashcards are permanently saved
   - The first flashcard generation for a user automatically creates a stats record
@@ -682,16 +682,19 @@ The application uses Supabase for authentication, which provides:
 ### Implementation Details
 
 1. **Client-Side Authentication Flow**:
+
    - User signs in through Supabase Auth UI or custom forms
    - JWT token is stored securely (HTTP-only cookies)
    - Token is sent with each API request in the Authorization header
 
 2. **Server-Side Verification**:
+
    - Middleware validates the JWT token on each request
    - User identity is extracted from the token and made available to API handlers
    - Requests without valid tokens are rejected with 401 Unauthorized
 
 3. **Row-Level Security (RLS)**:
+
    - Supabase RLS policies ensure users can only access their own data
    - API further enforces this by checking user IDs against resource ownership
 
@@ -704,14 +707,17 @@ The application uses Supabase for authentication, which provides:
 ### Validation Rules
 
 #### Collections
+
 - `name`: Required, maximum 100 characters
 - `description`: Optional, maximum 500 characters
 
 #### Categories
+
 - `name`: Required, maximum 50 characters, unique per user
 - `description`: Optional, maximum 200 characters
 
 #### Flashcards
+
 - `front`: Required, maximum 200 characters
 - `back`: Required, maximum 500 characters
 - `collection_id`: Optional, must reference a valid collection owned by the user
@@ -720,21 +726,25 @@ The application uses Supabase for authentication, which provides:
 ### Business Logic Implementation
 
 1. **AI Flashcard Generation**:
+
    - Input text must be between 1000-10000 characters
    - 5-15 candidate flashcards are generated
    - Flashcards are validated against length constraints before being presented to the user
 
 2. **Flashcard Acceptance Process**:
+
    - User can accept, edit then accept, or reject each generated flashcard
    - Bulk saving of accepted flashcards is performed in a single operation
    - Statistics are updated to track acceptance rates
 
 3. **Spaced Repetition Logic**:
+
    - Integrated with open-source spaced repetition algorithm
    - Flashcards are scheduled for review based on user learning progress
    - API provides endpoints to mark cards as learned or requiring review
 
 4. **Statistics Gathering**:
+
    - System tracks statistics about AI-generated flashcards
    - Calculates metrics such as acceptance rate and generation effectiveness
    - These statistics are used to measure success against the 75% acceptance target
@@ -742,4 +752,4 @@ The application uses Supabase for authentication, which provides:
 5. **Data Privacy and Security**:
    - User data is stored in compliance with GDPR
    - User has the right to access and delete all their data
-   - Account deletion includes removal of all associated flashcards, collections, and categories 
+   - Account deletion includes removal of all associated flashcards, collections, and categories

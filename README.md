@@ -1,9 +1,11 @@
 # Fiszki
 
 ## Project Description
+
 Fiszki is a web application that enables users to generate educational flash cards using AI. The application addresses the time-consuming nature of manually creating high-quality flash cards, making spaced repetition learning more accessible. The MVP focuses on generating flash cards from input text, manual creation, and integration with an open-source spaced repetition algorithm.
 
 ## Tech Stack
+
 - **Frontend**: Astro 5, React 19, TypeScript 5, Tailwind 4, Shadcn/ui
 - **Backend**: Supabase (PostgreSQL + Authentication)
 - **AI**: Gemini API (Google AI models)
@@ -11,6 +13,7 @@ Fiszki is a web application that enables users to generate educational flash car
 - **Hosting**: DigitalOcean (Docker)
 
 ## Getting Started Locally
+
 1. Clone the repository:
    ```bash
    git clone https://github.com/yourusername/fiszki.git
@@ -29,6 +32,7 @@ Fiszki is a web application that enables users to generate educational flash car
    ```
 
 ## Available Scripts
+
 - `npm run dev`: Start the development server
 - `npm run build`: Build the project for production
 - `npm run preview`: Preview the production build
@@ -37,6 +41,7 @@ Fiszki is a web application that enables users to generate educational flash car
 - `npm run format`: Format code with Prettier
 
 ## Project Scope
+
 - **MVP Features**:
   - AI-generated flash cards from input text (1000-10000 characters)
   - Manual flash card creation
@@ -50,6 +55,7 @@ Fiszki is a web application that enables users to generate educational flash car
   - Mobile applications
 
 ## Project Status
+
 - **Current Phase**: MVP Development
 - **Target Completion**: 16.05.2025
 - **Success Metrics**:
@@ -57,7 +63,9 @@ Fiszki is a web application that enables users to generate educational flash car
   - 75% of all flash cards created using AI
 
 ## Requirements
+
 - Node.js version: 22.14.0 (specified in .nvmrc)
 
 ## License
+
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

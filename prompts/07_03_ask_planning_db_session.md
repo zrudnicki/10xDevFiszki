@@ -1,4 +1,5 @@
 <odpowiedzi_na_pytania>
+
 1. mogą tworzyć własne
 2. w MVP nie.
 3. w MVP nie.
@@ -7,17 +8,19 @@
 6. data utworzenia i data modyfikacji
 7. nie.
 8. brak
-</odpowiedzi_na_pytania> <- lista odpowiedzi na drugą rundę pytań
+   </odpowiedzi_na_pytania> <- lista odpowiedzi na drugą rundę pytań
 
 ---
 
 Jesteś asystentem AI, którego zadaniem jest podsumowanie rozmowy na temat planowania bazy danych dla MVP i przygotowanie zwięzłego podsumowania dla następnego etapu rozwoju. W historii konwersacji znajdziesz następujące informacje:
+
 1. Dokument wymagań produktu (PRD)
 2. Informacje o stacku technologicznym
 3. Historia rozmów zawierająca pytania i odpowiedzi
 4. Zalecenia dotyczące modelu
 
 Twoim zadaniem jest:
+
 1. Podsumować historii konwersacji, koncentrując się na wszystkich decyzjach związanych z planowaniem bazy danych.
 2. Dopasowanie zaleceń modelu do odpowiedzi udzielonych w historii konwersacji. Zidentyfikuj, które zalecenia są istotne w oparciu o dyskusję.
 3. Przygotuj szczegółowe podsumowanie rozmowy, które obejmuje:

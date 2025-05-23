@@ -1,0 +1,79 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { StudySessionWrapper } from "../components/StudySessionWrapper";
+import { getSupabaseServerClient } from "@/lib/supabase/server";
+
+// Check authentication using server-side client
+const supabase = await getSupabaseServerClient(Astro.cookies);
+const {
+  data: { session },
+  error: authError,
+} = await supabase.auth.getSession();
+
+if (authError) {
+  console.error("Auth error:", authError);
+  return Astro.redirect("/login?error=auth");
+}
+
+if (!session) {
+  console.log("No session found, redirecting to login");
+  return Astro.redirect("/login");
+}
+
+// Get URL parameters
+const collectionIdParam = Astro.url.searchParams.get("collectionId");
+const categoryIdParam = Astro.url.searchParams.get("categoryId");
+const limitParam = Astro.url.searchParams.get("limit");
+
+const collectionId = collectionIdParam || undefined;
+const categoryId = categoryIdParam || undefined;
+const limit = limitParam ? parseInt(limitParam) : undefined;
+
+console.log("Study page params:", { collectionId, categoryId, limit });
+
+// Get collection and category names if IDs are provided
+let collectionName = null;
+let categoryName = null;
+
+if (collectionId) {
+  const { data: collection, error: collectionError } = await supabase
+    .from("collections")
+    .select("name")
+    .eq("id", collectionId)
+    .single();
+
+  if (collectionError) {
+    console.error("Error fetching collection:", collectionError);
+  } else {
+    collectionName = collection?.name;
+  }
+}
+
+if (categoryId) {
+  const { data: category, error: categoryError } = await supabase
+    .from("categories")
+    .select("name")
+    .eq("id", categoryId)
+    .single();
+
+  if (categoryError) {
+    console.error("Error fetching category:", categoryError);
+  } else {
+    categoryName = category?.name;
+}
+}
+
+const sessionTitle = categoryName || collectionName || "Study Session";
+---
+
+<Layout title={sessionTitle}>
+  <div class="container mx-auto px-4 py-8">
+    <header class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white">{sessionTitle}</h1>
+      {collectionName && <p class="text-gray-600 dark:text-gray-400">Collection: {collectionName}</p>}
+      {categoryName && <p class="text-gray-600 dark:text-gray-400">Category: {categoryName}</p>}
+    </header>
+
+    <StudySessionWrapper collectionId={collectionId} categoryId={categoryId} limit={limit} client:load />
+  </div>
+</Layout>

@@ -15,4 +15,4 @@ This directory contains configuration, documentation, and best practices for usi
 
 - [config.json](./config.json): Optional Copilot configuration.
 - [prompts.md](./prompts.md): Custom prompts and instructions for Copilot Chat.
-- [ignore.txt](./ignore.txt): Files Copilot should avoid (for documentation purposes). 
+- [ignore.txt](./ignore.txt): Files Copilot should avoid (for documentation purposes).
