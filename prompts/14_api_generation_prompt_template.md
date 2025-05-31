@@ -14,7 +14,7 @@ Zanim zaczniemy, zapoznaj się z poniższymi informacjami:
 
 3. Definicje typów:
 <type_definitions>
-{{types}} <- zamień na referencje do definicji typów z @database.types.ts)
+{{types}} <- zamień na referencje do definicji typów z @database.types.ts
 </type_definitions>
 
 3. Tech stack:
