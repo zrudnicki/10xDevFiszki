@@ -141,35 +141,33 @@ export async function updateFlashcardAcceptanceStats(
 
     if (fetchError) {
       console.error(`Error fetching flashcard generation stats for user ${userId}:`, fetchError);
-      
+
       // If no record exists, create a new one with the acceptance stats
-      if (fetchError.code === 'PGRST116') {
-        const { error: insertError } = await supabase
-          .from("flashcard_generation_stats")
-          .insert({
-            user_id: userId,
-            total_generated: 0, // We don't know how many were generated
-            total_accepted_direct: directAccepted,
-            total_accepted_edited: editedAccepted,
-            last_generation_at: new Date().toISOString()
-          });
-          
+      if (fetchError.code === "PGRST116") {
+        const { error: insertError } = await supabase.from("flashcard_generation_stats").insert({
+          user_id: userId,
+          total_generated: 0, // We don't know how many were generated
+          total_accepted_direct: directAccepted,
+          total_accepted_edited: editedAccepted,
+          last_generation_at: new Date().toISOString(),
+        });
+
         if (insertError) {
           console.error(`Error creating flashcard acceptance stats for user ${userId}:`, insertError);
         }
       }
       return;
     }
-    
+
     // Update statistics
     const { error: updateError } = await supabase
       .from("flashcard_generation_stats")
       .update({
         total_accepted_direct: existingStats.total_accepted_direct + directAccepted,
-        total_accepted_edited: existingStats.total_accepted_edited + editedAccepted
+        total_accepted_edited: existingStats.total_accepted_edited + editedAccepted,
       })
       .eq("user_id", userId);
-      
+
     if (updateError) {
       console.error(`Error updating flashcard acceptance stats for user ${userId}:`, updateError);
     }

@@ -98,12 +98,12 @@ export async function generateFlashcards(
 
 /**
  * Creates a properly formatted response DTO with generated flashcards
- * 
+ *
  * @param flashcards - The array of generated flashcards
  * @returns GenerateFlashcardsResponseDto - The formatted response object
  */
 export function createFlashcardsResponse(flashcards: GeneratedFlashcardDto[]): GenerateFlashcardsResponseDto {
   return {
-    data: flashcards
+    data: flashcards,
   };
 }
