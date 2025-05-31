@@ -28,7 +28,7 @@ The file MUST be named in the format `YYYYMMDDHHmmss_short_description.sql` with
 For example:
 
 ```
-20240906123045_create_profiles.sql
+20250531123456_create_profiles.sql
 ```
 
 

@@ -135,6 +135,7 @@ Manualne tworzenie wysokiej jakości fiszek edukacyjnych jest czasochłonne, co 
   - Możliwość wglądu i usunięcia danych na wniosek użytkownika
 
 ## 6. Metryki sukcesu
+
+- Średni czas potrzebny na przegląd fiszek przez użytkownika nie przekracza 2 minut na sesję
 - 75% fiszek generowanych przez AI jest akceptowanych przez użytkowników  
 - 75% wszystkich utworzonych fiszek pochodzi z generacji przez AI  
-- Średni czas potrzebny na przegląd fiszek przez użytkownika nie przekracza 2 minut na sesję
