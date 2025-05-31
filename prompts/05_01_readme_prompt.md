@@ -6,13 +6,12 @@ Oto pliki projektu, które należy przeanalizować:
 @prd.md
 </prd>
 
-<tech_stack>
-@tech-stack.md
+<tech_stack>@tech-stack.md 
+
 </tech_stack>
 
-<dependencies>
-@package.json
-@.nvmrc
+<dependencies>@package.json 
+@.nvmrc 
 </dependencies>
 
 Twoim zadaniem jest utworzenie pliku README.md o następującej strukturze:
