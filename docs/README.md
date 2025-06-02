@@ -146,7 +146,49 @@ curl -X DELETE http://localhost:3001/api/categories/da640844-3465-4941-a6c9-f6ac
   -b cookies.txt
 ```
 
-### 5. Statistics
+### 5. Collections Management
+
+#### Get Collections List
+```bash
+curl -X GET "http://localhost:3001/api/collections?limit=20&sort=name&order=asc" \
+  -b cookies.txt
+```
+
+#### Create Collection
+```bash
+curl -X POST http://localhost:3001/api/collections \
+  -H "Content-Type: application/json" \
+  -b cookies.txt \
+  -d '{
+    "name": "JavaScript Fundamentals",
+    "description": "Core concepts of JavaScript programming"
+  }'
+```
+
+#### Get Single Collection
+```bash
+curl -X GET http://localhost:3001/api/collections/f47ac10b-58cc-4372-a567-0e02b2c3d479 \
+  -b cookies.txt
+```
+
+#### Update Collection
+```bash
+curl -X PATCH http://localhost:3001/api/collections/f47ac10b-58cc-4372-a567-0e02b2c3d479 \
+  -H "Content-Type: application/json" \
+  -b cookies.txt \
+  -d '{
+    "name": "Advanced JavaScript",
+    "description": "Advanced JavaScript concepts and patterns"
+  }'
+```
+
+#### Delete Collection
+```bash
+curl -X DELETE http://localhost:3001/api/collections/f47ac10b-58cc-4372-a567-0e02b2c3d479 \
+  -b cookies.txt
+```
+
+### 6. Statistics
 
 ---
 

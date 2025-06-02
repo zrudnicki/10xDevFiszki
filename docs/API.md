@@ -569,6 +569,203 @@ id: UUID of the category
 }
 ```
 
+## Collections API
+
+### GET /api/collections
+
+Returns a paginated list of user's collections with flashcard counts.
+
+**Requirements:**
+- Authentication required
+- Supports pagination, sorting, and filtering
+- Real-time flashcard counting
+
+**Request Headers:**
+```
+Cookie: session-cookie (from login)
+```
+
+**Query Parameters:**
+```
+limit (optional): Number of collections per page (1-100, default: 20)
+offset (optional): Number of collections to skip (default: 0)
+sort (optional): Sort field - created_at|updated_at|name (default: created_at)
+order (optional): Sort order - asc|desc (default: desc)
+```
+
+**Response (200 OK):**
+```json
+{
+  "data": [
+    {
+      "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+      "name": "JavaScript Fundamentals",
+      "description": "Core concepts of JavaScript programming",
+      "flashcard_count": 42,
+      "created_at": "2025-05-31T21:19:40.744339+00:00",
+      "updated_at": "2025-05-31T21:20:30.123456+00:00"
+    },
+    {
+      "id": "f47ac10b-58cc-4372-a567-0e02b2c3d480",
+      "name": "React Hooks",
+      "description": null,
+      "flashcard_count": 18,
+      "created_at": "2025-05-30T15:30:20.123456+00:00",
+      "updated_at": null
+    }
+  ],
+  "pagination": {
+    "total": 2,
+    "limit": 20,
+    "offset": 0,
+    "has_more": false
+  }
+}
+```
+
+### POST /api/collections
+
+Creates a new collection for the authenticated user.
+
+**Requirements:**
+- Authentication required
+- Collection name must be unique per user
+- Name length: 1-250 characters
+- Description is optional
+
+**Request Headers:**
+```
+Content-Type: application/json
+Cookie: session-cookie (from login)
+```
+
+**Request Body:**
+```json
+{
+  "name": "JavaScript Fundamentals",
+  "description": "Core concepts of JavaScript programming"
+}
+```
+
+**Response (201 Created):**
+```json
+{
+  "data": {
+    "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+    "name": "JavaScript Fundamentals",
+    "description": "Core concepts of JavaScript programming",
+    "flashcard_count": 0,
+    "created_at": "2025-05-31T21:19:40.744339+00:00",
+    "updated_at": "2025-05-31T21:19:40.744339+00:00"
+  }
+}
+```
+
+### GET /api/collections/{id}
+
+Returns details of a specific collection.
+
+**Requirements:**
+- Authentication required
+- Collection must belong to authenticated user
+
+**Request Headers:**
+```
+Cookie: session-cookie (from login)
+```
+
+**Path Parameters:**
+```
+id: UUID of the collection
+```
+
+**Response (200 OK):**
+```json
+{
+  "data": {
+    "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+    "name": "JavaScript Fundamentals",
+    "description": "Core concepts of JavaScript programming",
+    "flashcard_count": 42,
+    "created_at": "2025-05-31T21:19:40.744339+00:00",
+    "updated_at": "2025-05-31T21:20:30.123456+00:00"
+  }
+}
+```
+
+### PATCH /api/collections/{id}
+
+Updates a collection with optional fields and uniqueness validation.
+
+**Requirements:**
+- Authentication required
+- Collection must belong to authenticated user
+- Name must be unique per user (if changed)
+- Name length: 1-250 characters (if provided)
+- All fields are optional
+
+**Request Headers:**
+```
+Content-Type: application/json
+Cookie: session-cookie (from login)
+```
+
+**Path Parameters:**
+```
+id: UUID of the collection
+```
+
+**Request Body:**
+```json
+{
+  "name": "Advanced JavaScript",
+  "description": "Advanced JavaScript concepts and patterns"
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "data": {
+    "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+    "name": "Advanced JavaScript",
+    "description": "Advanced JavaScript concepts and patterns",
+    "flashcard_count": 42,
+    "created_at": "2025-05-31T21:19:40.744339+00:00",
+    "updated_at": "2025-05-31T22:15:45.789012+00:00"
+  }
+}
+```
+
+### DELETE /api/collections/{id}
+
+Deletes a collection and handles associated flashcards with CASCADE.
+
+**Requirements:**
+- Authentication required
+- Collection must belong to authenticated user
+- Associated flashcards will be deleted (CASCADE)
+
+**Request Headers:**
+```
+Cookie: session-cookie (from login)
+```
+
+**Path Parameters:**
+```
+id: UUID of the collection
+```
+
+**Response (200 OK):**
+```json
+{
+  "data": {
+    "message": "Collection deleted successfully",
+    "deleted_id": "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+  }
+}
+```
+
 ## Common Error Responses
 
 ### Categories API Errors
@@ -605,6 +802,54 @@ id: UUID of the category
     "details": {
       "name": "Category name is required"
     }
+  }
+}
+```
+
+### Collections API Errors
+
+**409 Conflict - Collection Name Exists:**
+```json
+{
+  "error": {
+    "code": "COLLECTION_NAME_EXISTS",
+    "message": "A collection with this name already exists",
+    "details": {
+      "field": "name"
+    }
+  }
+}
+```
+
+**404 Not Found - Collection Not Found:**
+```json
+{
+  "error": {
+    "code": "COLLECTION_NOT_FOUND", 
+    "message": "Collection not found or access denied"
+  }
+}
+```
+
+**422 Validation Error:**
+```json
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Invalid input data",
+    "details": {
+      "name": "Collection name is required and must be between 1 and 250 characters"
+    }
+  }
+}
+```
+
+**403 Forbidden - Unauthorized Access:**
+```json
+{
+  "error": {
+    "code": "UNAUTHORIZED_COLLECTION_ACCESS",
+    "message": "Unauthorized access to collection"
   }
 }
 ```

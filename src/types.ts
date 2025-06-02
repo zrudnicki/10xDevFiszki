@@ -127,3 +127,57 @@ export interface CategoryListResponse {
 export interface SingleCategoryResponse {
   data: CategoryResponse;
 }
+
+// Collections API Types
+export interface Collection {
+  id: string;
+  user_id: string;
+  name: string;
+  description: string | null;
+  created_at: string;
+  updated_at: string | null;
+}
+
+export interface CollectionWithCount extends Collection {
+  flashcard_count: number;
+}
+
+export interface CollectionListQuery {
+  limit?: number; // default: 20, max: 100
+  offset?: number; // default: 0
+  sort?: 'created_at' | 'updated_at' | 'name'; // default: 'created_at'
+  order?: 'asc' | 'desc'; // default: 'desc'
+}
+
+export interface CreateCollectionRequest {
+  name: string; // required, max 250 chars
+  description?: string; // optional
+}
+
+export interface UpdateCollectionRequest {
+  name?: string; // optional, max 250 chars  
+  description?: string; // optional
+}
+
+export interface CollectionResponse {
+  id: string;
+  name: string;
+  description: string | null;
+  flashcard_count: number;
+  created_at: string;
+  updated_at: string | null;
+}
+
+export interface CollectionListResponse {
+  data: CollectionResponse[];
+  pagination: {
+    total: number;
+    limit: number;
+    offset: number;
+    has_more: boolean;
+  };
+}
+
+export interface SingleCollectionResponse {
+  data: CollectionResponse;
+}

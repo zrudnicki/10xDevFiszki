@@ -57,10 +57,13 @@ export class RateLimitError extends APIError {
   }
 }
 
-export class CollectionNotFoundError extends APIError {
-  constructor(message: string = "Collection not found or access denied") {
-    super("COLLECTION_NOT_FOUND", message, 422);
-    this.name = "CollectionNotFoundError";
+export class CollectionNotFoundError extends Error {
+  public readonly code = 'COLLECTION_NOT_FOUND';
+  public readonly statusCode = 404;
+
+  constructor(message: string = 'Collection not found or access denied') {
+    super(message);
+    this.name = 'CollectionNotFoundError';
   }
 }
 
@@ -121,6 +124,36 @@ export class UnauthorizedCategoryAccessError extends AuthenticationError {
   constructor(message: string = 'Access denied to category resource') {
     super(message);
     this.name = 'UnauthorizedCategoryAccessError';
+  }
+}
+
+// Collections API Errors
+export class CollectionNameExistsError extends Error {
+  public readonly code = 'COLLECTION_NAME_EXISTS';
+  public readonly statusCode = 409;
+  public readonly details: Record<string, unknown>;
+
+  constructor(message: string = 'A collection with this name already exists') {
+    super(message);
+    this.name = 'CollectionNameExistsError';
+    this.details = { field: 'name' };
+  }
+}
+
+export class CollectionValidationError extends ValidationError {
+  constructor(message: string, details: Record<string, unknown>) {
+    super(message, details);
+    this.name = 'CollectionValidationError';
+  }
+}
+
+export class UnauthorizedCollectionAccessError extends Error {
+  public readonly code = 'UNAUTHORIZED_COLLECTION_ACCESS';
+  public readonly statusCode = 403;
+
+  constructor(message: string = 'Unauthorized access to collection') {
+    super(message);
+    this.name = 'UnauthorizedCollectionAccessError';
   }
 }
 
