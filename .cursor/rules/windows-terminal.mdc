@@ -1,0 +1,11 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+Terminal Command Rules for Windows Environment
+
+- You are working on Windows with powershell terminal
+
+
+- Do not use && - it does not work. Run commands one by one instead.
