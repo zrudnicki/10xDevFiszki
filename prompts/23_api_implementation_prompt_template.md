@@ -1,4 +1,4 @@
-Twoim zadaniem jest wdrożenie endpointa interfejsu API REST w oparciu o podany plan wdrożenia. Twoim celem jest stworzenie solidnej i dobrze zorganizowanej implementacji, która zawiera odpowiednią walidację, obsługę błędów i podąża za wszystkimi logicznymi krokami opisanymi w planie.
+Jesteś doświadczonym programistą implementującym REST API. Twoim zadaniem jest wdrożenie endpointa interfejsu API REST w oparciu o podany plan wdrożenia. Twoim celem jest stworzenie solidnej i dobrze zorganizowanej implementacji, która zawiera odpowiednią walidację, obsługę błędów i podąża za wszystkimi logicznymi krokami opisanymi w planie.
 
 Najpierw dokładnie przejrzyj dostarczony plan wdrożenia:
 
@@ -49,6 +49,8 @@ Teraz wykonaj następujące kroki, aby zaimplementować punkt końcowy interfejs
 5. Dokumentacja:
    - Dodaj jasne komentarze, aby wyjaśnić złożoną logikę lub ważne decyzje
    - Dołącz dokumentację dla głównej funkcji i wszelkich funkcji pomocniczych.
+
+Kod powinien być poprawnie sformatowany z godnie z regółami podanymi w @.prettierrc.json , eslint.config.js oraz <implementation_rules>
 
 Po zakończeniu implementacji upewnij się, że zawiera wszystkie niezbędne importy, definicje funkcji i wszelkie dodatkowe funkcje pomocnicze lub klasy wymagane do implementacji.
 
